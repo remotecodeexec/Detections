@@ -5,7 +5,7 @@ references:
     - https://outflank.nl/blog/2018/01/16/hunting-for-evil-detect-macros-being-executed/
     - http://az4n6.blogspot.com/2016/02/more-on-trust-records-macros-and.html
     - https://twitter.com/inversecos/status/1494174785621819397
-author: author: Luís Marques, SIBS Cyberwatch @remotecodeexe
+author: author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-02-19
 tags:
     - attack.initial-access

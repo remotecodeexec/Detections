@@ -5,7 +5,7 @@ description: |
     directory C:\windows\temp\s\, a known Agrius wiper deployment location.
 references: |
     https://intruvent.com/wp-content/uploads/threat-intel/iran-conflict/Agrius-Threat-Hunting-Guide.pdf
-author: Luís Marques, SIBS Cyberwatch @remotecodeexe
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 status: stable
 logsource:
     category: file_event
