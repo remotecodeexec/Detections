@@ -2,7 +2,7 @@ title: CMD Binary Resolution via Wildcards
 id: b4680a10-44c8-440b-a3e6-6664e431a588
 status: experimental
 description: Detects Windows command line obfuscation where 'for' loops use the 'where' or 'dir /b' commands with wildcards to resolve and execute system binaries (LOLBins). This bypasses static string detection for common tools like certutil.exe or powershell.exe.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
   - https://0xv1n.github.io/LOLGlobs/api/entries.json
 date: 2026-02-28

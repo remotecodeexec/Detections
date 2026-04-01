@@ -4,7 +4,7 @@ status: stable
 description: >-
   Detects .NET executables created in the Windows temp staging directory
   C:\windows\temp\s\, a known Agrius wiper deployment location.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
   https://intruvent.com/wp-content/uploads/threat-intel/iran-conflict/Agrius-Threat-Hunting-Guide.pdf
 logsource:

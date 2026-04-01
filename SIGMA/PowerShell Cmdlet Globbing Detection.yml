@@ -2,7 +2,7 @@ title: PowerShell Cmdlet Globbing Detection
 id: 190e3179-bfaf-41dc-9fc9-3e82e67971d4
 status: stable
 description: Detects PowerShell commands using the call operator with 'Get-Command' (gcm) or 'Get-Alias' (gal) containing wildcards to resolve and execute sensitive cmdlets. This is a common technique to evade static string-based detections for commands like 'Invoke-Expression' or 'Invoke-WebRequest'.
-author: Luís Marques, SIBS Cyberwatch
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
   - https://0xv1n.github.io/LOLGlobs/api/entries.json
 date: 2026-02-28

@@ -6,7 +6,7 @@ description: >-
   the "ping" command to wait a couple of seconds (acting as a sleep command) and
   then "del" to delete the file in question. This is commonly used to hide or
   delete the file responsible for the initial infection.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
   - >-
     https://www.manageengine.com/log-management/detection-rules/suspicious-ping-del-command-combination.html#detections

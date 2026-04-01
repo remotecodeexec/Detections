@@ -4,7 +4,7 @@ status: experimental
 description: |
   (Part 1 of a Correlation) Detects the creation of a potentially executable or script file by a browser or Microsoft Office application.
   This rule is intended to be used in a correlation with a subsequent process execution.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-03-20
 tags:
   - attack.execution

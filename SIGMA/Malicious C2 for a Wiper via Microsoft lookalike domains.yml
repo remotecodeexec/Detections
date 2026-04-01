@@ -4,7 +4,7 @@ status: stable
 description: |
     Detects the use of Microsoft lookalike domains for command and control (C2) communication in the context of wiper malware. 
     Attackers may register domains that closely resemble legitimate Microsoft domains to evade detection and facilitate malicious activities, such as data exfiltration or remote control of compromised systems.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-03-17
 tags:
   - attack.impact
