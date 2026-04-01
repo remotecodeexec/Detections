@@ -1,0 +1,28 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Reconnaissance" technique="T1596.005" techniqueName="Search Open Technical Databases: Scan Databases">
+        <Name>Recon Websites Traffic / SCW</Name>
+        <Description>Detects HTTP referrer from Reckoning sites like SHODAN | Censys | Check-Host;
+https://attack.mitre.org/techniques/T1596/005/
+Adversaries may search within public scan databases for information about victims that can be used during targeting. Various online services continuously publish the results of Internet scans/surveys, often harvesting information such as active IP addresses, hostnames, open ports, certificates, and even server banners.</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,reptDevIpAddr,eventType,srcIpAddr,httpReferrer,httpUserAgent,httpStatusCode,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Recon web traffic deteceted from $httpUserAgent </IncidentTitle>
+        <Remediation>https://attack.mitre.org/mitigations/M1056/
+https://attack.mitre.org/techniques/T1592/</Remediation>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="600">
+            <SubPattern id="3341973005" name="Recon_Sites">
+                <SingleEvtConstr>(eventType="Apache-Web-Request-Success" OR eventType="AO-WUA-IIS-Web-Request-Success") AND (httpReferrer="censys.io/cert-annotator" OR httpReferrer="Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)" OR httpReferrer="CheckHost (https://check-host.net/)")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>httpUserAgent</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Recon_Websites_Traffic_Cyberwtach" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="3600" severity="2">
+            <ArgList>httpUserAgent = Recon_Sites.httpUserAgent,incidentCount = Recon_Sites.COUNT(*)</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

@@ -1,0 +1,25 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Persistence,Execution,Privilege Escalation" technique="T1053.005" techniqueName="Scheduled Task/Job: Scheduled Task">
+        <Name>Windows: Scheduled Task Deletion / SCW</Name>
+        <Description>Detects scheduled task deletion events. Scheduled tasks are likely to be deleted if not used for persistence. Malicious Software often creates tasks directly under the root node e.g. \TASKNAME. This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/security/win_security_scheduled_task_deletion.yml</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,hostName,task,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Scheduled Task Deletion on $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource>Windows Security Log via OMI or FortiSIEM Agent</DataSource>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="5070541459" name="Filter">
+                <SingleEvtConstr>eventType="Win-Security-4699" AND ((task!="\\Microsoft\\Windows\\RemovalTools\\MRT_ERROR_HB") AND (task NOT REGEXP ".*\\Mozilla\\Firefox Default Browser Agent .*")) AND user NOT REGEXP "\$$"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>hostName,task</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Windows_Scheduled_Task_Deletion_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="3">
+            <ArgList>hostName = Filter.hostName,task = Filter.task</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

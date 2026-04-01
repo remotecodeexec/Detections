@@ -1,0 +1,91 @@
+let process_hits =
+    DeviceProcessEvents
+    | where Timestamp >= ago(14d)
+    | where SHA1 in (
+        "07d889e2dadce6f3910dcbc253317d28ca61c766",
+        "d6f3f62fd3b9f5432f5782b62d8cfd5247d5ee71"
+    )
+    or SHA256 in (
+        "58401c195fe0a6204b42f5f90995ece5fab74ce7c69c67a24c61a057325af668",
+        "59336a964f110c25c112bcc5adca7090296b54ab33fa95c0744b94f8a0d80c0f",
+        "5bb67e88846096f1f8d42a0f0350c9c46260591567612ff9af46f98d1b7571cd",
+        "617b67a8e1210e4fc87c92d1d1da45a2f311c08d26e89b12307cf583c900d101",
+        "92ff08773995ebc8d55ec4b8e1a225d0d1e51efa4ef88b8849d0071230c9645a",
+        "fcb81618bb15edfdedfb638b4c08a2af9cac9ecfa551af135a8402bf980375cf"
+    )
+    or ProcessCommandLine has_any (
+        "plain-crypto-js",
+        "axios@1.14.1",
+        "axios@0.30.4",
+        "plain-crypto-js@4.2.1",
+        "sfrclak.com",
+        "/6202033"
+    )
+    | project
+        Timestamp,
+        SourceTable = "DeviceProcessEvents",
+        DeviceName,
+        ActionType,
+        FileName,
+        FolderPath,
+        SHA1,
+        SHA256,
+        AccountName,
+        ProcessCommandLine,
+        InitiatingProcessFileName,
+        InitiatingProcessCommandLine;
+let file_hits =
+    DeviceFileEvents
+    | where Timestamp >= ago(14d)
+    | where SHA1 in (
+        "07d889e2dadce6f3910dcbc253317d28ca61c766",
+        "d6f3f62fd3b9f5432f5782b62d8cfd5247d5ee71"
+    )
+    or SHA256 in (
+        "58401c195fe0a6204b42f5f90995ece5fab74ce7c69c67a24c61a057325af668",
+        "59336a964f110c25c112bcc5adca7090296b54ab33fa95c0744b94f8a0d80c0f",
+        "5bb67e88846096f1f8d42a0f0350c9c46260591567612ff9af46f98d1b7571cd",
+        "617b67a8e1210e4fc87c92d1d1da45a2f311c08d26e89b12307cf583c900d101",
+        "92ff08773995ebc8d55ec4b8e1a225d0d1e51efa4ef88b8849d0071230c9645a",
+        "fcb81618bb15edfdedfb638b4c08a2af9cac9ecfa551af135a8402bf980375cf"
+    )
+    or FolderPath has_any (
+        "plain-crypto-js",
+        "com.apple.act.mond",
+        "ld.py"
+    )
+    | project
+        Timestamp,
+        SourceTable = "DeviceFileEvents",
+        DeviceName,
+        ActionType,
+        FileName,
+        FolderPath,
+        SHA1,
+        SHA256,
+        AccountName = InitiatingProcessAccountName,
+        ProcessCommandLine = InitiatingProcessCommandLine,
+        InitiatingProcessFileName;
+let network_hits =
+    DeviceNetworkEvents
+    | where Timestamp >= ago(14d)
+    | where RemoteUrl has "sfrclak.com"
+        or RemoteUrl has "/6202033"
+    | project
+        Timestamp,
+        SourceTable = "DeviceNetworkEvents",
+        DeviceName,
+        ActionType,
+        FileName = InitiatingProcessFileName,
+        FolderPath = InitiatingProcessFolderPath,
+        SHA1 = InitiatingProcessSHA1,
+        SHA256 = InitiatingProcessSHA256,
+        AccountName = InitiatingProcessAccountName,
+        ProcessCommandLine = InitiatingProcessCommandLine,
+        InitiatingProcessFileName,
+        RemoteUrl,
+        DeviceId,
+        ReportId,
+        RemoteIP;
+union process_hits, file_hits, network_hits
+| order by Timestamp desc

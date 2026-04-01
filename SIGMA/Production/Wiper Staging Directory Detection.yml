@@ -1,0 +1,24 @@
+title: Suspicious .NET Executable in Windows Temp Staging Directory (Agrius)
+id: b2c3d4e5-f6a7-8901-bcde-a91105000001
+status: stable
+description: |
+    Detects .NET executables created in the Windows temp staging
+    directory C:\windows\temp\s\, a known Agrius wiper deployment location.
+logsource:
+    category: file_event
+    product: windows
+detection:
+    selection_staging_dir:
+        TargetFilename|startswith: 'C:\windows\temp\s\'
+        TargetFilename|endswith:
+            - '.exe'
+            - '.dll'
+    selection_tool_names:
+        TargetFilename|endswith:
+            - '\sql.net4.exe'
+            - '\systems.exe'
+            - '\IPsecHelper.exe'
+    condition: selection_staging_dir or selection_tool_names
+falsepositives:
+    - Legitimate software installation to temp directories
+level: high

@@ -1,0 +1,118 @@
+title: 'Suspicious File Creation by Browser or Office Application'
+id: 7d2644f3-3b31-4439-b333-0210d374984a
+status: experimental
+description: |
+  (Part 1 of a Correlation) Detects the creation of a potentially executable or script file by a browser or Microsoft Office application.
+  This rule is intended to be used in a correlation with a subsequent process execution.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+date: 2026-03-20
+tags:
+  - attack.execution
+  - attack.t1204.002
+  - attack.initial_access
+  - attack.t1566.001
+logsource:
+  product: windows
+  category: file_event
+  source: Sysmon
+detection:
+
+  event_type:
+    EventID: 11
+
+  parent_process:
+    ParentImage|endswith:
+      - '\chrome.exe'
+      - '\firefox.exe'
+      - '\msedge.exe'
+      - '\iexplore.exe'
+      - '\WINWORD.EXE'
+      - '\EXCEL.EXE'
+      - '\POWERPNT.EXE'
+      - '\OUTLOOK.EXE'
+      - '\ONENOTE.EXE'
+
+  target_path:
+    TargetFilename|contains:
+      - '\Users\'
+      - '\AppData\'
+      - '\Temp\'
+      - '\Downloads\'
+
+  target_extension:
+    TargetFilename|endswith:
+      - '.exe'
+      - '.dll'
+      - '.js'
+      - '.vbs'
+      - '.vbe'
+      - '.ps1'
+      - '.bat'
+      - '.cmd'
+      - '.scr'
+      - '.msi'
+      - '.hta'
+      - '.jar'
+      - '.docm'
+      - '.xlsm'
+      - '.pptm'
+
+  condition: all of them
+level: informational
+name: rule1
+
+---
+
+title: 'Process Creation'
+id: f6e9fb16-5700-4c6c-8957-5513e367b46a
+status: experimental
+description: |
+  (Part 2 of a Correlation) Detects any process creation event.
+  This rule is intended to be used only in a correlation with another event and is expected to generate a high volume of events if run standalone.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+date: 2026-03-20
+
+tags:
+  - attack.execution
+
+logsource:
+  product: windows
+  category: process_creation
+  source: Sysmon
+
+detection:
+  selection:
+    EventID: 1
+    Image|exists: true
+
+  groupby:
+    - Hashes
+
+  condition: selection
+level: informational
+name: rule2
+
+---
+
+title: Suspicious File Creation by Productivity App Followed by Execution
+id: 11f1638b-e5c6-409d-b4b7-b389c05dc7fb
+status: experimental
+description: |
+  (Part 3 of a Correlation) Correlates a suspicious file creation event (Part 1) with its subsequent execution (Part 2) within a short time frame.
+  This pattern is highly indicative of a user being tricked into downloading and running a malicious payload.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+date: 2026-03-20
+tags:
+  - attack.execution
+  - attack.t1204.002
+  - attack.initial_access
+  - attack.t1566.001
+correlation: 
+  type: temporal
+  rules:
+    - rule1
+    - rule2
+  timespan: 10m
+falsepositives:
+  - Legitimate software installers or updaters downloaded and run by users.
+level: high

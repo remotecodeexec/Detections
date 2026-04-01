@@ -1,0 +1,27 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Exfiltration" technique="T1048.003" techniqueName="Exfiltration Over Alternative Protocol: Exfiltration Over Unencrypted/Obfuscated Non-C2 Protocol">
+        <Name>Windows: Suspicious Outbound SMTP Connections / SCW</Name>
+        <Description>Adversaries may steal data by exfiltrating it over an un-encrypted network protocol other than that of the existing command and control channel.
+The data may also be sent to an alternate network location from the main command and control server. 
+. This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/network_connection/net_connection_win_susp_outbound_smtp_connections.yml</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,hostName,destIpPort,initiated,procName,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Suspicious Outbound SMTP Connections on $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="4156950053" name="Filter">
+                <SingleEvtConstr>eventType REGEXP "Win-Sysmon-3-Network-Connect.*" AND (destIpPort IN (25,2525,465,587) AND initiated="true") AND ((procName NOT REGEXP ".*\\outlook\.exe|.*\\thunderbird\.exe") AND (procName NOT REGEXP "C:\\Program Files\\Microsoft\\Exchange Server\\.*"))</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>procName,initiated,destName,hostName,destIpPort</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Windows_Suspicious_Outbound_SMTP_Connections_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="5">
+            <ArgList>destIpPort = Filter.destIpPort,hostName = Filter.hostName,destName = Filter.destName,initiated = Filter.initiated,procName = Filter.procName</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

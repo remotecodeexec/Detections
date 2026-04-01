@@ -1,0 +1,25 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming">
+        <Name>Web Traffic to AMBER Alert URLs / SCW</Name>
+        <Description>Detects HTTP traffic where the URL matches the external AMBER Alert Malicious URL list</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,reptDevIpAddr,eventType,srcIpAddr,destName,infoURL,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Web Traffic from $srcIpAddr to AMBER Alert Malicious URL $infoURL</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="600">
+            <SubPattern id="3259938202" name="AMBER">
+                <SingleEvtConstr>infoURL IN (Group@Malware_URLs_CNCS.CERT_AMBER_0) AND eventType IN (Group@PH_SYS_EVENT_PermitWebTraffic)</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,destName,infoURL</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Web_Traffic_to_AMBER_Alert_URLs_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="9">
+            <ArgList>srcIpAddr = AMBER.srcIpAddr,destName = AMBER.destName,infoURL = AMBER.infoURL</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

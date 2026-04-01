@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><rules><DataRequest functionCategory="Security" mode="Streaming" tactic="Exfiltration,Execution" technique="T1041,T1204.002" techniqueName="Exfiltration Over C2 Channel,User Execution: Malicious File"><Name>Shai-Hulud activity within a host / SCW</Name><Description>This rule is a compilation of threat hunting querys that are correlated with activity off the APT commonly knowned as Shai-Hulud.</Description><Remediation/><DataSource>Linux Process Monitoring via FortiSIEM Agent, Windows Sysmon</DataSource><DetectionTechnology>Correlation</DetectionTechnology><PatternClause window="300">
+<SubPattern id="1533851853" name="Commands_ShaiHulud">
+<SingleEvtConstr>eventType IN ("Win-Sysmon-1-Create-Process","LINUX_PROCESS_EXEC","PH_RULE_TH_Linux_process_exec_temp") AND (command CONTAIN "trufflehog" OR fileName CONTAIN "trufflehog" OR paraName CONTAIN "trufflehog" OR swParam CONTAIN "trufflehog")</SingleEvtConstr>
+<GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+<GroupByAttr>srcIpAddr,user,command</GroupByAttr>
+</SubPattern>
+<Operator rank="0" type="OR"/>
+<SubPattern id="1533851854" name="Files_ShaiHulud">
+<SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_FileChange) AND rawEventMsg CONTAIN "shai-hulud-workflow"</SingleEvtConstr>
+<GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+<GroupByAttr>srcIpAddr,user</GroupByAttr>
+</SubPattern>
+<Operator rank="0" type="FOLLOWED_BY"/>
+<SubPattern id="1533851855" name="domain_ShaiHulud">
+<SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_PermitTraffic,Group@PH_SYS_EVENT_DenyTraffic,Group@PH_SYS_EVENT_OtherTraffic) AND rawEventMsg CONTAIN "webhook.site"</SingleEvtConstr>
+<GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+<GroupByAttr>srcIpAddr,user</GroupByAttr>
+</SubPattern>
+<GlobalConstr>Commands_ShaiHulud.srcIpAddr=Files_ShaiHulud.srcIpAddr AND Files_ShaiHulud.srcIpAddr=domain_ShaiHulud.srcIpAddr</GlobalConstr>
+</PatternClause><IncidentDef eventType="Shai_Hulud_activity_within_a_host_SCW" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="900" severity="10">
+<ArgList>command = Commands_ShaiHulud.command,srcIpAddr = Commands_ShaiHulud.srcIpAddr,user = Commands_ShaiHulud.user</ArgList>
+</IncidentDef><DynWatchLists/><TriggerEventDisplay>
+<AttrList>phRecvTime,eventType,reptDevIpAddr,rawEventMsg</AttrList>
+</TriggerEventDisplay><IncidentTitle>A Shai-Hulud IOC was found in $srcIpAddr</IncidentTitle></DataRequest></rules>

@@ -1,0 +1,26 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Defense Evasion" technique="T1564.006" techniqueName="Hide Artifacts: Run Virtual Instance">
+        <Name>Windows: DISM Hyper-V Enable and Disable Correlation / SCW</Name>
+        <Description>Detects a sequence of DISM commands enabling Hyper-V followed by disabling Hyper-V management clients within a short timeframe, which could indicate an attempt to run a virtual instance or evade detection.</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,hostName,command,procName,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>DISM Hyper-V Enable and Disable Correlation</IncidentTitle>
+        <Remediation/>
+        <DataSource>Sysmon</DataSource>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="5707510023" name="Filter">
+                <SingleEvtConstr>((((command REGEXP "/limitaccess" AND command REGEXP "/online" AND command REGEXP "enable-feature" AND command REGEXP "microsoft-hyper-v") AND procName REGEXP "\\dism\.exe$") AND command REGEXP " -all|/all") AND ((command REGEXP "/online" AND command REGEXP "disable-feature" AND command REGEXP "microsoft-hyper-v-management-clients") AND procName REGEXP "\\dism\.exe$")) AND eventType="Win-Sysmon-1-Create-Process"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>command,hostName,procName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>SCW</Tag>
+        <IncidentDef eventType="PH_RULE_DISM_Hyper_V_Enable_and_Disable_Correlation_2025_11_26_15_49_46_231566" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="900" severity="7">
+            <ArgList>command = Filter.command,hostName = Filter.hostName,procName = Filter.procName</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

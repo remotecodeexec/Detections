@@ -1,0 +1,25 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Credential Access" technique="T1110.001" techniqueName="Brute Force: Password Guessing">
+        <Name>Failed VPN Logon From Outside My Country / SCW</Name>
+        <Description>Detects VPN logon from outside my country. My Country is set to "United States" and may need to be changed for outside United States deployments</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevIpAddr,srcIpAddr,user,computer,winLogonType,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Failed VPN login from $user at IP $srcIpAddr from outside my country</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="600">
+            <SubPattern id="5781459163" name="VPNLoginOutside">
+                <SingleEvtConstr>(eventType IN (Group@PH_SYS_EVENT_VPNLogonFailure) OR (eventType="Checkpoint-Log-Log In" AND appName="Endpoint Security VPN")) AND srcGeoCountry NOT IN (Group@PH_COUNTRY_GROUP_MYHOME)</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=3</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,srcGeoCountry,user</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Failed_VPN_Logon_From_Outside_My_Country_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="5">
+            <ArgList>srcIpAddr = VPNLoginOutside.srcIpAddr,srcGeoCountry = VPNLoginOutside.srcGeoCountry,user = VPNLoginOutside.user</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

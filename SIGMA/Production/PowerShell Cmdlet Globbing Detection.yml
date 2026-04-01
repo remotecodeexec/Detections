@@ -1,0 +1,32 @@
+title: PowerShell Cmdlet Globbing Detection
+id: 190e3179-bfaf-41dc-9fc9-3e82e67971d4
+status: stable
+description: Detects PowerShell commands using the call operator with 'Get-Command' (gcm) or 'Get-Alias' (gal) containing wildcards to resolve and execute sensitive cmdlets. This is a common technique to evade static string-based detections for commands like 'Invoke-Expression' or 'Invoke-WebRequest'.
+author: Luís Marques, SIBS Cyberwatch
+references:
+  - https://0xv1n.github.io/LOLGlobs/api/entries.json
+date: 2026-02-28
+tags:
+  - attack.execution
+  - attack.t1059.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_operator:
+    CommandLine|contains: '&'   
+  selection_cmdlet:
+    CommandLine|contains:
+      - 'Get-Command'
+      - 'gcm'
+      - 'Get-Alias'
+      - 'gal'
+  selection_wildcard:
+    CommandLine|contains:
+      - '*' # tem de ser alterado para um "CONTAINS" no siem
+      - '?'
+      - '['
+  condition: all of them
+falsepositives:
+  - Legitimate administrative or automation scripts may use this technique for dynamic cmdlet resolution, though it is uncommon. Review script functionality and purpose before escalating.
+level: medium

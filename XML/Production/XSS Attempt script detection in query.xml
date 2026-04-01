@@ -1,0 +1,44 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Credential Access" technique="T1539" techniqueName="Steal Web Session Cookie">
+        <Name>XSS Attempt script detection in query / SCW</Name>
+        <Description>Detects various patterns pertaining to potencial scripting attacks. These detections are completely based on regex element on the mecanism.</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,reptDevName,eventType,srcIpAddr,httpUserAgent,httpMethod,httpStatusCode,uriStem,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>XSS Attempt at $reptDevName from $srcIpAddr</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="3446790754" name="XSS_1">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_PermitWebTraffic) AND (uriStem REGEXP "(?i)&lt;script[^&gt;]*&gt;[\\s\\S]*?" OR uriQuery REGEXP "(?i)&lt;script[^&gt;]*&gt;[\\s\\S]*?" OR httpReferrer REGEXP "(?i)&lt;script[^&gt;]*&gt;[\\s\\S]*?")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>reptDevName,srcIpAddr,uriStem</GroupByAttr>
+            </SubPattern>
+            <Operator rank="0" type="OR"/>
+            <SubPattern id="5696063815" name="XSS_2">
+                <SingleEvtConstr>(uriStem REGEXP "(?i)[\\s\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"'`;\\/0-9=\\x0B\\x09\\x0C\\x3B\\x2C\\x28\\x3B]+on[a-zA-Z]+[\\s\\x0B\\x09\\x0C\\x3B\\x2C\\x28\\x3B]*?=" OR uriQuery REGEXP "(?i)[\\s\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"'`;\\/0-9=\\x0B\\x09\\x0C\\x3B\\x2C\\x28\\x3B]+on[a-zA-Z]+[\\s\\x0B\\x09\\x0C\\x3B\\x2C\\x28\\x3B]*?=" OR httpReferrer REGEXP "(?i)[\\s\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"'`;\\/0-9=\\x0B\\x09\\x0C\\x3B\\x2C\\x28\\x3B]+on[a-zA-Z]+[\\s\\x0B\\x09\\x0C\\x3B\\x2C\\x28\\x3B]*?=") AND eventType IN (Group@PH_SYS_EVENT_PermitWebTraffic)</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,destIpAddr,uriStem,uriQuery,httpReferrer</GroupByAttr>
+            </SubPattern>
+            <Operator rank="0" type="OR"/>
+            <SubPattern id="5696063816" name="XSS_3">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_PermitWebTraffic) AND (uriStem REGEXP "((%3C)|&lt;)((%2F)|/)*[A-Za-z0-9]+((%3E)|&gt;)" OR uriQuery REGEXP "((%3C)|&lt;)((%2F)|/)*[A-Za-z0-9]+((%3E)|&gt;)" OR httpMethod REGEXP "((%3C)|&lt;)((%2F)|/)*[A-Za-z0-9]+((%3E)|&gt;)")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,destIpAddr,uriStem,uriQuery,httpMethod</GroupByAttr>
+            </SubPattern>
+            <Operator rank="0" type="OR"/>
+            <SubPattern id="5696063817" name="XSS_4">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_PermitWebTraffic) AND (uriStem REGEXP "(?i)(?:&lt;(?:(?:applet|objec)t|isindex|embed|style|form|meta)\\b[^&gt;]*?&gt;[\\s\\S]*?|(?:=|U\\s*?R\\s*?L\\s*?\\()\\s*?[^&gt;]*?\\s*?S\\s*?C\\s*?R\\s*?I\\s*?P\\s*?T\\s*?:)" OR uriQuery REGEXP "(?i)(?:&lt;(?:(?:applet|objec)t|isindex|embed|style|form|meta)\\b[^&gt;]*?&gt;[\\s\\S]*?|(?:=|U\\s*?R\\s*?L\\s*?\\()\\s*?[^&gt;]*?\\s*?S\\s*?C\\s*?R\\s*?I\\s*?P\\s*?T\\s*?:)" OR httpMethod REGEXP "(?i)(?:&lt;(?:(?:applet|objec)t|isindex|embed|style|form|meta)\\b[^&gt;]*?&gt;[\\s\\S]*?|(?:=|U\\s*?R\\s*?L\\s*?\\()\\s*?[^&gt;]*?\\s*?S\\s*?C\\s*?R\\s*?I\\s*?P\\s*?T\\s*?:)")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,destIpAddr,uriStem,uriQuery,httpMethod</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>SCW</Tag>
+        <IncidentDef eventType="XSS_Attempt_script_detection_in_query_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="900" severity="6">
+            <ArgList>srcIpAddr = XSS_1.srcIpAddr,reptDevName = XSS_1.reptDevName,uriStem = XSS_1.uriStem</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

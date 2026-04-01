@@ -1,0 +1,29 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming">
+        <Name>Windows Suspicious Logon Failures / SCW</Name>
+        <Description>Detects suspicious logon failures for the following reasons - account disabled, time of day violation, forbidden logon, error during logon, account locked out</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,reptDevName,serviceName,serviceFileName,serviceType,serviceStartType,serviceAccount,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Windows Suspicious Logon Failures from $user on $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="3156602644" name="Download">
+                <SingleEvtConstr>eventType IN ("Win-Security-680-failure","Win-Security-4776","Win-Security-4625") AND user IS NOT NULL AND winLogonFailCode2 IN ("0xC0000072","0xC000006F","0xC0000070","0xC0000413","0xC000018C")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>user,reptDevName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Windows_Suspicious_Logon_Failures_CyberWatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="9">
+            <ArgList>hostName = Download.reptDevName,user = Download.user</ArgList>
+        </IncidentDef>
+        <DynWatchLists>
+            <DynWatchListDef attr="hostName">
+                <WatchList>PH_DYNLIST_SUSPICIOUS_ACTIVITY</WatchList>
+            </DynWatchListDef>
+        </DynWatchLists>
+    </DataRequest>
+</rules>
+

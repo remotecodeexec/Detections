@@ -1,0 +1,58 @@
+title: Sensitive Files or RPC Endpoints Access via Network Share
+id: 4f2e98af-3c3d-4f5d-bb55-ec46ed20fa6b
+status: experimental
+description: |
+      Detects access to sensitive files, credential data, or remote procedure call (RPC) endpoints related to credential dumping over a network share. 
+      This could indicate lateral movement or remote credential harvesting techniques.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+references:
+  - https://www.slideshare.net/heirhabarov/hunting-for-credentials-dumping-in-windows-environment
+date: 2026-03-18
+tags:
+  - attack.credential_access
+  - attack.t1003
+  - attack.t1003.002
+  - attack.t1003.003
+  - attack.t1021.002
+logsource:
+  product: windows
+  service: security
+  definition: 'The "Audit Detailed File Share" audit policy must be configured for this rule to work. GPO: Computer Configuration > Policies > Windows Settings > Security Settings > Advanced Audit Policy Configuration > Audit Policies > Object Access > Audit Detailed File Share.'
+detection:
+  common:
+    EventID: 5145
+  selection_contains:
+    RelativeTargetName|contains:
+      - 'lsass'        
+      - '\windows\minidump\'        
+      - 'sqldmpr'        
+      - '\WCEServicePipe' 
+      - '\cachedumppipe'        
+  selection_endswith:
+    RelativeTargetName|endswith:
+      - '\hiberfil.sys'
+      - '\ntds.dit'
+      - '\SAM'
+      - '\SECURITY'
+      - '\SYSTEM'
+      - '\winreg'
+      - '\krb5cc'
+      - '.kirbi'
+      - 'SAM.out'
+      - 'NTDS.out'
+      - 'SYSTEM.out'
+      - '-PwHashes.txt'
+      - '.pwdump'
+      - '.fgdump-log'
+      - '\test.pwd'
+      - '\.hiv'
+      - '\.hive'
+  selection_startswith:
+    RelativeTargetName|startswith:
+      - '\lsadump'
+  condition: common and (1 of selection_*)
+falsepositives:
+  - Legitimate administrative activities, such as remote server management, backups, or troubleshooting, might access these files or pipes.
+  - Security scanners or vulnerability management tools may also trigger this detection.
+  - It's recommended to baseline normal administrative behavior and filter out known sources or patterns.
+level: high

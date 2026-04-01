@@ -1,0 +1,31 @@
+title: Failed SSH logins using administrative accounts # Transferida para XML
+status: test 
+description: |
+    This rule detects when a user containing the name "admin" in the username fails to log in via SSH. 
+    This could indicate an attempt to access the system using administrative credentials, which may be a sign of malicious activity. 
+    However, it is important to note that this rule may also generate false positives if legitimate users with "admin" in their usernames fail to log in due to typos or other issues.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+date: 2026-02-27 
+modified: 2026-02-27
+tags:
+    - attack.credential_access
+    - attack.t1110.001
+    - attack.T1078.003
+logsource:
+    product: linux
+    service: sshd
+detection:
+    selection:
+        User|contains: 
+            - 'admin'
+            - 'Admin'
+    selection_status:
+        EventCode: 'Generic_Unix_Failed_SSH_Login'
+    groupby:
+        src_ip: '*'
+        dst_ip: '*'
+    condition: selection and selection_status | count by src_ip, dst_ip, User > 5
+falsepositives:
+    - Legitimate administrators forgetting passwords.
+    - Automated scripts with misconfigured credentials.
+level: high

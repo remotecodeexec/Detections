@@ -1,0 +1,31 @@
+<rules>
+    <DataRequest functionCategory="Availability" mode="Streaming">
+        <Name>Excessive Web Request Failures / SCW</Name>
+        <Description>Calls to one or more web server URIs has returned a status code other than 200/300 or 500  greater than 90 times in a 3 minute interval.</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevIpAddr,reptDevName,httpStatusCode,srcIpAddr,uriStem,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Excessive request failures from source $srcIpAddr to server $incidentRptDevName with status $httpStatusCode</IncidentTitle>
+        <Remediation>Investigate the error codes and confirm why they are occurring.</Remediation>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="180">
+            <SubPattern id="3382341351" name="excessive_error_codes2018">
+                <SingleEvtConstr>eventType CONTAIN "IIS-" AND (srcIpAddr NOT IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) OR (httpForwardAddr IS NOT NULL AND httpForwardAddr!=185.17.230.166 AND httpForwardAddr!=63.143.42.242)) AND httpStatusCode NOT IN ("200","201","202","204","301","302","304","500","501","502","503","504","505","506","507","508","510","511")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=90</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,httpStatusCode,reptDevName,customer</GroupByAttr>
+            </SubPattern>
+            <Operator rank="0" type="OR"/>
+            <SubPattern id="3413330828" name="excessive_error_code2003">
+                <SingleEvtConstr>(eventType CONTAIN "IIS-" OR eventType CONTAIN "Apache-" OR eventType="SophosXG-Generic") AND srcIpAddr NOT IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) AND httpStatusCode NOT IN ("200","201","202","204","301","302","304","500","501","502","503","504","505","506","507","508","510","511")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=60</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,httpStatusCode,reptDevName,customer</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Excessive_Web_Request_Failures_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_AVAIL" fireFreq="86400" severity="8">
+            <ArgList>customer = excessive_error_codes2018.customer,incidentRptDevName = excessive_error_codes2018.reptDevName,httpStatusCode = excessive_error_codes2018.httpStatusCode,srcIpAddr = excessive_error_codes2018.srcIpAddr,incidentCount = excessive_error_codes2018.COUNT(*),customer = excessive_error_code2003.customer,incidentRptDevName = excessive_error_code2003.reptDevName,httpStatusCode = excessive_error_code2003.httpStatusCode,srcIpAddr = excessive_error_code2003.srcIpAddr,incidentCount = excessive_error_code2003.COUNT(*)</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

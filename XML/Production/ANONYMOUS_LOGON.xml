@@ -1,0 +1,26 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Persistence ICS,Lateral Movement ICS" technique="T0859" techniqueName="Valid Accounts">
+        <Name>ANONYMOUS LOGON detection / SCW</Name>
+        <Description>This rule goes after a anonymous logon use with any of the assets within the SIEM's scope</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevIpAddr,rawEventMsg,user,srcName,hostName,authenMethod,srcUser</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>An anonymous logon was detected on $hostName </IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="5696063804" name="Anonymous_logon">
+                <SingleEvtConstr>eventType=Group@PH_SYS_EVENT_Logon AND user CONTAIN "ANONYMOUS LOGON"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>user,srcName,hostName,authenMethod,srcUser</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>SCW</Tag>
+        <IncidentDef eventType="ANONYMOUS_LOGON_detection" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="900" severity="5">
+            <ArgList>user = Anonymous_logon.user,srcName = Anonymous_logon.srcName,hostName = Anonymous_logon.hostName,authenMethod = Anonymous_logon.authenMethod,srcUser = Anonymous_logon.srcUser</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

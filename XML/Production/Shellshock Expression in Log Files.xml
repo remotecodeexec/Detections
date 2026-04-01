@@ -1,0 +1,29 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming">
+        <Name>Shellshock Expression in Log Files / SCW</Name>
+        <Description>Detects Shellshock expression in linux syslog</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,reptDevName,srcIpAddr,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Shellshock Expression in Log Files on $hostName from $srcIpAddr </IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="3259938203" name="shellshock">
+                <SingleEvtConstr>reptDevIpAddr IN (Group@PH_SYS_DEVICE_UNIX_SERVER) AND rawEventMsg REGEXP "\\(\\)\\s*\\t*\\{.*;\\s*\\}\\s*;" AND phEventCategory=0</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,reptDevName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Shellshock_Expression_in_Log_Files_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="9">
+            <ArgList>hostName = shellshock.reptDevName,srcIpAddr = shellshock.srcIpAddr</ArgList>
+        </IncidentDef>
+        <DynWatchLists>
+            <DynWatchListDef attr="hostName">
+                <WatchList>PH_DYNLIST_SUSPICIOUS_ACTIVITY</WatchList>
+            </DynWatchListDef>
+        </DynWatchLists>
+    </DataRequest>
+</rules>
+

@@ -1,0 +1,26 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Persistence,Privilege Escalation,Defense Evasion,Initial Access" technique="T1078.002" techniqueName="Valid Accounts: Domain Accounts">
+        <Name>Windows: Failed Logins with Different Accounts from Single Source System / SCW</Name>
+        <Description>Detects suspicious failed logins with different user accounts from a single source system. This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/win_susp_failed_logons_single_source.yml</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,hostName,computer,user,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Failed Logins with Different Accounts from Single Source System to $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="2656429961" name="Filter">
+                <SingleEvtConstr>eventType IN ("Win-Security-4625","Win-Security-529") AND hostName NOT CONTAIN "DC"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(DISTINCT user)&gt;=10</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,hostName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>SCW</Tag>
+        <IncidentDef eventType="Windows_Failed_Logins_with_Different_Accounts_from_Single_Source_System_mCIC" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="5">
+            <ArgList>srcIpAddr = Filter.srcIpAddr,hostName = Filter.hostName,count = Filter.COUNT(DISTINCT user)</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

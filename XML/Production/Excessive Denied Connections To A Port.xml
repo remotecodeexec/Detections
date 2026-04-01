@@ -1,0 +1,25 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming">
+        <Name>Excessive Denied Connections To A Port / SCW</Name>
+        <Description>Detects excessive denies from many distinct external source IP addresses to the same port. The intent could be beginning of some sort of day zero attack</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,reptDevIpAddr,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Excessive Denied Connections to port $destIpPort</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="700">
+            <SubPattern id="4506776528" name="ExcessDenySamePort">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_DenyNetTraffic) AND srcIpAddr NOT IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET)</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(DISTINCT srcIpAddr)&gt;=800</GroupEvtConstr>
+                <GroupByAttr>destIpPort</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Excessive_Denied_Connections_To_A_Port_SIBSCyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="7">
+            <ArgList>destIpPort = ExcessDenySamePort.destIpPort,incidentCount = ExcessDenySamePort.COUNT(DISTINCT srcIpAddr)</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

@@ -1,0 +1,25 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Execution" technique="T1059.003" techniqueName="Command and Scripting Interpreter: Windows Command Shell">
+        <Name>Windows: Read Contents From Stdin Via Cmd.EXE / SCW</Name>
+        <Description>Detect the use of "&lt;" to read and potentially execute a file via cmd.exe. This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_cmd_stdin_redirect.yml</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,hostName,command,procName,srcFileName,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Read Contents From Stdin Via Cmd EXE on $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource>Windows Sysmon via FortiSIEM Agent</DataSource>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="4617584307" name="Filter">
+                <SingleEvtConstr>eventType="Win-Sysmon-1-Create-Process" AND (srcFileName="Cmd.Exe" OR procName REGEXP "\\cmd\.exe$") AND command REGEXP ".*&lt;.*"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcFileName,parentProcName,procName,hostName,command</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Windows_Read_Contents_From_Stdin_Via_Cmd_EXE_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="5">
+            <ArgList>command = Filter.command,hostName = Filter.hostName,procName = Filter.procName,parentProcName = Filter.parentProcName,srcFileName = Filter.srcFileName</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

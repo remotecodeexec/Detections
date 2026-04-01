@@ -1,0 +1,29 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Impact" technique="T1498.001" techniqueName="Network Denial of Service: Direct Network Flood">
+        <Name>Sudden Increase In Permitted Traffic To Host / SCW</Name>
+        <Description>Detects traffic anomaly to a destination. This means that the permitted traffic pattern to the destination is statistically anomalous in the following sense: over a 15 minute time window, at least 500 permitted flows and excessive traffic, peers or ports. Excessive traffic is detected from the number of permitted flows destined to this host and total exchanged bytes more than three standard deviations away from mean for the current hour. Excessive peers amounts to more than twice the statistical average for the current hour. Excessive destination ports amounts to more than five times the statistical average for the current hour.</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,srcDestTCPFlags,reptDevIpAddr,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Sudden Increase In Permitted Traffic To $destIpAddr from $avgTotFlows to $totFlows</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="900">
+            <SubPattern id="3446790751" name="StatHighFlowToDest">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_PermitTraffic) AND reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL,Group@PH_SYS_DEVICE_ROUTER_SWITCH) AND (ipProto=17 OR ipProto=6) AND destIpAddr NOT IN (Group@PH_SYS_APP_ACCELOPS) AND srcIpAddr NOT IN (Group@PH_SYS_NETWORK_GUEST,Device@kali)</SingleEvtConstr>
+                <GroupEvtConstr>SUM(totFlows)&gt;=2000 AND ((SUM(totFlows)-STAT_AVG(SUM(totFlows):126))/STAT_STDDEV(SUM(totFlows):126)&gt;=3 AND (SUM(totBytes64)-STAT_AVG(SUM(totBytes64):126))/STAT_STDDEV(SUM(totBytes64):126)&gt;=3 AND STAT_STDDEV(SUM(totFlows):126)&gt;0 AND STAT_STDDEV(SUM(totBytes64):126)&gt;0)</GroupEvtConstr>
+                <GroupByAttr>destIpAddr</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Sudden_Increase_In_Permitted_Traffic_To_Host_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="4">
+            <ArgList>destIpAddr = StatHighFlowToDest.destIpAddr,totFlows = StatHighFlowToDest.SUM(totFlows),totBytes64 = StatHighFlowToDest.SUM(totBytes64),avgTotFlows = StatHighFlowToDest.STAT_AVG(SUM(totFlows):126),sdevTotFlows = StatHighFlowToDest.STAT_STDDEV(SUM(totFlows):126),avgTotBytes64 = StatHighFlowToDest.STAT_AVG(SUM(totBytes64):126),sdevTotBytes64 = StatHighFlowToDest.STAT_STDDEV(SUM(totBytes64):126)</ArgList>
+        </IncidentDef>
+        <DynWatchLists>
+            <DynWatchListDef attr="destIpAddr">
+                <WatchList>PH_DYNLIST_TRAFFIC_ANOMALY</WatchList>
+            </DynWatchListDef>
+        </DynWatchLists>
+    </DataRequest>
+</rules>
+

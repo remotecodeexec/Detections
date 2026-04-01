@@ -1,0 +1,32 @@
+title: Network Recognition by Windows Commands
+status: stable
+description: |
+    This rule detects the use of Native Windows binaries to enumerate the network information on the host.
+    These are the first steps of an attack, where the adversary is trying to understand the network environment and the host's role within it.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+date: 2026-03-16
+tags:
+    - attack.discovery
+    - attack.t1016
+logsource:
+    category: network
+    product: windows
+    service: sysmon
+detection:
+    selection_sysmon:
+        EventID: 1
+    selection_network:
+        CommandLine|contains:
+            - 'ipconfig'
+            - 'netstat'
+            - 'arp'
+            - 'route'
+    groupby:
+        - ParentCommandLine: '*'
+        - sha256: '*'
+        - user: '*'
+    condition: all of selection_*
+falsepositives:
+    - A legitimate use of the binaries for admin activity, troubleshooting, or network monitoring.
+    - False positives levels will differ Depending on the environment. You can use a combination of Parent
+level: medium

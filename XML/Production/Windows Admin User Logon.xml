@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><rules><DataRequest functionCategory="Security" mode="Streaming" tactic="Defense Evasion,Initial Access,Persistence,Privilege Escalation" technique="T1078.003" techniqueName="Valid Accounts: Local Accounts"><Name>Windows: Admin User Logon / SCW</Name><Description>Detect remote login by Administrator user (depending on internal pattern). This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/security/account_management/win_security_admin_rdp_login.yml</Description><Remediation/><DataSource>Microsoft Windows Security Log via OMI or FortiSIEM Agent</DataSource><DetectionTechnology>Correlation</DetectionTechnology><PatternClause window="300">
+<SubPattern id="1491914186" name="Administrator_Use">
+<SingleEvtConstr>eventType="Win-Security-4624" AND authenMethod="Kerberos, NTLM" AND user REGEXP "^Admin"</SingleEvtConstr>
+<GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+<GroupByAttr>authenMethod,hostName,user,winLogonType</GroupByAttr>
+</SubPattern>
+</PatternClause><IncidentDef eventType="Windows_Admin_User_Remote_Logon_SCW" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="900" severity="8">
+<ArgList>user = Administrator_Use.user,hostName = Administrator_Use.hostName,winLogonType = Administrator_Use.winLogonType</ArgList>
+</IncidentDef><DynWatchLists/><TriggerEventDisplay>
+<AttrList>phRecvTime,hostName,authenMethod,user,winLogonType,rawEventMsg</AttrList>
+</TriggerEventDisplay><IncidentTitle>Administrator user was spotted on $hostName</IncidentTitle></DataRequest></rules>

@@ -1,0 +1,29 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming">
+        <Name>HAFNIUM FortiGate Permitted IPS Event / SCW</Name>
+        <Description>Detects HAFNIUM FortiGate Permitted IPS Events</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevIpAddr,srcIpAddr,eventType,attackName,destIpAddr,ipsSignatureId,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>HAFNIUM FortiGate IPS Exploit Permitted from $srcIpAddr</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="5781459519" name="Hafnium">
+                <SingleEvtConstr>ipsSignatureId IN (15996,49950,49951,49952,49954) AND eventType CONTAIN "FortiGate-ips-signature-" AND eventAction=0</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,attackName,destIpAddr,ipsSignatureId</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="HAFNIUM_FortiGate_Permitted_IPS_Event_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="7">
+            <ArgList>srcIpAddr = Hafnium.srcIpAddr,attackName = Hafnium.attackName,destIpAddr = Hafnium.destIpAddr,ipsSignatureId = Hafnium.ipsSignatureId</ArgList>
+        </IncidentDef>
+        <DynWatchLists>
+            <DynWatchListDef attr="srcIpAddr">
+                <WatchList>PH_DYNLIST_LIKELY_MALWARE</WatchList>
+            </DynWatchListDef>
+        </DynWatchLists>
+    </DataRequest>
+</rules>
+

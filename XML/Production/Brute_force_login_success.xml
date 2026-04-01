@@ -1,0 +1,39 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Credential Access" technique="T1110.001" techniqueName="Brute Force: Password Guessing">
+        <Name>Brute Force Host Login Success / SCW</Name>
+        <Description>Detects an unusual condition where a source has authentication failures followed by a successful authentication at the same host within 15 minutes</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevIpAddr,srcIpAddr,destIpAddr,user,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Brute force logon success from $srcIpAddr </IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="900">
+            <SubPattern id="2523407478" name="FailedLogin">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_HostLogonFailure,Group@PH_SYS_EVENT_VMware_LogonFailure,Group@PH_SYS_EVENT_DomainLogonFailure,Group@PH_SYS_EVENT_VPNLogonFailure,Group@PH_SYS_EVENT_AAALogonFailure,Group@PH_SYS_EVENT_WirelessLogonFailure,Group@PH_SYS_EVENT_DBLogonFailure,Group@PH_SYS_EVENT_WebLogonFailure,Group@PH_SYS_EVENT_AppLogonFailure) AND user IS NOT NULL AND winLogonFailCode2!="0xC0000071"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=15</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,reptModel,user</GroupByAttr>
+            </SubPattern>
+            <Operator rank="0" type="OR"/>
+            <SubPattern id="2523407479" name="FailedLogin2">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_MultipleHostLogonFailure,Group@PH_SYS_EVENT_MultipleDomainLogonFailure,Group@PH_SYS_EVENT_MultipleVPNLogonFailure,Group@PH_SYS_EVENT_MultipleWirelessLogonFailure,Group@PH_SYS_EVENT_MultipleDBLogonFailure,Group@PH_SYS_EVENT_MultipleWebLogonFailure,Group@PH_SYS_EVENT_MultipleAppLogonFailure) AND user IS NOT NULL AND winLogonFailCode2!="0xC0000071"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=15</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,reptModel,user</GroupByAttr>
+            </SubPattern>
+            <Operator rank="1" type="FOLLOWED_BY"/>
+            <SubPattern id="2523407480" name="SuccessLogin">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_Logon) AND user IS NOT NULL</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>srcIpAddr,reptModel,user</GroupByAttr>
+            </SubPattern>
+            <GlobalConstr>FailedLogin.reptModel=SuccessLogin.reptModel AND FailedLogin.srcIpAddr=SuccessLogin.srcIpAddr AND FailedLogin.user=SuccessLogin.user OR FailedLogin2.reptModel=SuccessLogin.reptModel AND FailedLogin2.srcIpAddr=SuccessLogin.srcIpAddr AND FailedLogin2.user=SuccessLogin.user</GlobalConstr>
+        </PatternClause>
+        <Tag>SCW</Tag>
+        <IncidentDef eventType="Brute_Force_Host_Login_Success_mCIC" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="9">
+            <ArgList>srcIpAddr = SuccessLogin.srcIpAddr,user = SuccessLogin.user,srcIpAddr = FailedLogin.srcIpAddr,srcIpAddr = FailedLogin2.srcIpAddr,user = FailedLogin.user,user = FailedLogin.user</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

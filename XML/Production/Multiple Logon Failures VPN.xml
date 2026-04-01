@@ -1,0 +1,26 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Credential Access" technique="T1110.001" techniqueName="Brute Force: Password Guessing">
+        <Name>Multiple Logon Failures: VPN / SCW</Name>
+        <Description>Detects multiple VPN logon failures - 25 consecutive failures in a 10 minute period</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevName,reptDevIpAddr,srcIpAddr,user,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>$incidentCount VPN logon failures for user $user from $srcIpAddr on server $destName</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="600">
+            <SubPattern id="3632603313" name="ExcessVPNLoginFailure">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_VPNLogonFailure)</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=25</GroupEvtConstr>
+                <GroupByAttr>user,reptDevIpAddr,reptDevName,srcIpAddr</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>SCW</Tag>
+        <IncidentDef eventType="Multiple_Logon_Failures_VPN_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="4">
+            <ArgList>srcIpAddr = ExcessVPNLoginFailure.srcIpAddr,destName = ExcessVPNLoginFailure.reptDevName,destIpAddr = ExcessVPNLoginFailure.reptDevIpAddr,user = ExcessVPNLoginFailure.user,incidentCount = ExcessVPNLoginFailure.COUNT(*)</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

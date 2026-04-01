@@ -1,0 +1,25 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Defense Evasion" technique="T1562.002" techniqueName="Impair Defenses: Disable Windows Event Logging">
+        <Name>Windows: Windows Event Auditing Disabled / SCW</Name>
+        <Description>Detects scenarios where system auditing (ie: windows event log auditing) is disabled. This may be used in a scenario where an entity would want to bypass local logging to evade detection when windows event logging is enabled and reviewed. This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/win_disable_event_logging.yml</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,hostName,actionName,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Windows Event Auditing Disabled on $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource/>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="3674349830" name="Filter">
+                <SingleEvtConstr>eventType="Win-Security-4719" AND actionName CONTAIN "removed" AND user NOT CONTAIN "$"</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>user,hostName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Windows_Windows_Event_Auditing_Disabled_SIBS_Cyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="7">
+            <ArgList>user = Filter.user,hostName = Filter.hostName</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

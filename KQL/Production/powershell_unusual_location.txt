@@ -1,0 +1,44 @@
+rule powershell_from_unusual_parent_or_location {
+  meta:
+    description = "Detects powershell.exe execution from non-standard parent processes or atypical file system locations, a behavior often associated with ClickFix social engineering attacks."
+    author = "detections.ai"
+    date = "2025-11-12"
+    reference = "https://any.run/cybersecurity-blog/click-fix-attacks-eric-parker-analysis/"
+    tags = "CLICKFIX, POWERSHELL, SOCIAL_ENGINEERING, WINDOWS"
+    tactic = "TA0002, TA0005"
+    technique = "T1059.001, T1202"
+    false_positives = "Legitimate administrative scripts, software deployment tools, or third-party applications that use PowerShell might trigger this rule. Tuning may be required to exclude known good parent processes or script locations."
+events:
+    $ps.metadata.event_type = "PROCESS_LAUNCH"
+    $ps.principal.hostname = $hostname
+    // Detects the launch of powershell.exe
+    re.regex($ps.target.process.file.full_path, `\\powershell\.exe$`) nocase
+
+    // The detection triggers if either the parent process is not on an allowlist,
+    // OR if the powershell.exe binary is not in its standard location.
+    (
+      // Condition 1: Parent process is not a common/expected parent for PowerShell.
+      // Note: This list may need to be expanded with legitimate administrative tools or scripts specific to your environment to reduce false positives.
+      // Browsers are intentionally excluded from this list as they are a common parent in ClickFix attacks.
+      not re.regex($ps.principal.process.file.full_path, `\\(explorer|cmd|powershell|pwsh|svchost|services|WmiPrvSE|mmc)\.exe$`) nocase
+      or
+      // Condition 2: PowerShell is executing from a non-standard path.
+      not re.regex($ps.target.process.file.full_path, `C:\\Windows\\(System32|SysWOW64)\\WindowsPowerShell\\v1\.0\\powershell\.exe`) nocase
+    )
+
+  match:
+    $hostname over 10m
+
+  outcome:
+    $risk_score = 40
+    $event_count = count_distinct($ps.metadata.id)
+    $principal_hostname = array_distinct($ps.principal.hostname)
+    $user = array_distinct($ps.principal.user.userid)
+    $principal_process_path = array_distinct($ps.principal.process.file.full_path)
+    $principal_process_cmdline = array_distinct($ps.principal.process.command_line)
+    $target_process_path = array_distinct($ps.target.process.file.full_path)
+    $target_process_cmdline = array_distinct($ps.target.process.command_line)
+
+  condition:
+    $ps
+}

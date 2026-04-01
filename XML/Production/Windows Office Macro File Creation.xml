@@ -1,0 +1,26 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Initial Access" technique="T1566.001" techniqueName="Phishing: Spearphishing Attachment">
+        <Name>Windows: Office Macro File Creation / SCW</Name>
+        <Description>Detects the creation of a new office macro files on the systems. This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/file/file_event/file_event_win_office_macro_files_created.yml</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,hostName,fileName,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Office Macro Files were detected on $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource>Microsoft Windows Sysmon via FortiSIEM Agent</DataSource>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="5696063813" name="File_creation">
+                <SingleEvtConstr>eventType="Win-Sysmon-11-FileCreate" AND (fileName REGEXP "\.([dD][oO][cC][mM]|[dD][oO][tT][mM]|[xX][lL][sS][mM]|[xX][lL][tT][mM]|[xX][lL][aA][mM]|[pP][pP][tT][mM]|[pP][oO][tT][mM]|[pP][pP][aA][mM]|[pP][pP][sS][mM]|[vV][sS][dD][mM]|[vV][sS][tT][mM]|[vV][sS][sS][mM]|[mM][dD][bB]|[aA][cC][cC][dD][bB]|[mM][pP][pP]|[pP][uU][bB])$" AND fileName NOT STARTS_WITH "$")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>fileName,hostName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>Suspicious Execution</Tag>
+        <IncidentDef eventType="Windows_Office_Macro_File_Creation_SCW" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="900" severity="3">
+            <ArgList>hostName = File_creation.hostName,fileName = File_creation.fileName</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

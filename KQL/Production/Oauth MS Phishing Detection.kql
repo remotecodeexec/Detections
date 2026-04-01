@@ -1,0 +1,25 @@
+// title: Oauth MS Phishing Detection
+// description: The rule detects the use of a workers[.]dev domain on a e-mail coming in to the infraestructure
+// author: Luís Marques
+// tags:
+//   - attack.command_and_control
+//   - attack.t1071.004
+//   - attack.discovery
+//   - attack.t1059.001
+//   - attack.t1059.003
+// level: high
+let Lookback = 24h;
+let OauthMSPhish =
+EmailUrlInfo
+| where Timestamp > ago(Lookback)
+| where UrlDomain matches regex @"index-[a-z0-9]+(\.[a-z0-9\-]+)*\.workers\.dev"
+| join EmailEvents on NetworkMessageId
+| where EmailDirection == "Inbound"
+| where DeliveryAction <> "Blocked";
+DeviceNetworkEvents
+| where ReportId != "0"
+| where Timestamp > ago(Lookback)
+| where RemoteUrl matches regex @"index-[a-z0-9]+(\.[a-z0-9\-]+)*\.workers\.dev"
+| union OauthMSPhish
+| project-rename 
+    ReportId=ReportId_string

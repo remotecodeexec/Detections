@@ -1,0 +1,26 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Exfiltration" technique="T1041" techniqueName="Exfiltration Over C2 Channel">
+        <Name>Website access that are on a blacklist/blocked by IT / SCW</Name>
+        <Description>The rule checks for website that are blocked by diferent mechanisms, but are accessed by machines</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevIpAddr,rawEventMsg,userFullName,srcName,srcIpAddr,webCategory,destName</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>The user $userFullName from $srcName accessed $destName </IncidentTitle>
+        <Remediation/>
+        <DataSource>FortiGate via Syslog, FortiProxy via Syslog, Juniper JunOS via Syslog, Juniper SRX via Syslog, Juniper SSG via Syslog, Pulse Secure via Syslog, Hillstone Firewall via Syslog, Cisco ASA via Syslog, Cisco IOS via Syslog, WatchGuard via Syslog, Sophos Firewall via Syslog, SonicOS via Syslog, Riverbed via Syslog,  NetScaler via Syslog, HP Procurve via Syslog, FortiWeb via Syslog, BlueCoat via Syslog, Microsoft Windows via OMI or FortiSIEM Agent, Linux via Syslog, VMware NSX via Syslog, FortiSIEM via Syslog, IBM AIX via Syslog, AWS CloudTrail via AWS_CLOUDTRAIL, Office 365 via Management Activity API</DataSource>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="5767141358" name="Blacklist">
+                <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_PermitWebTraffic,Group@PH_SYS_EVENT_DenyWebTraffic) AND webCategory IN ("Blacklist","Blocked_URLs_IT")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>userFullName,srcName,srcIpAddr,webCategory,destName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>SCW</Tag>
+        <IncidentDef eventType="Website_access_that_are_on_a_blacklist_blocked_by_IT_SCW" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="3600" severity="5">
+            <ArgList>userFullName = Blacklist.userFullName,srcName = Blacklist.srcName,srcIpAddr = Blacklist.srcIpAddr,webCategory = Blacklist.webCategory,destName = Blacklist.destName</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

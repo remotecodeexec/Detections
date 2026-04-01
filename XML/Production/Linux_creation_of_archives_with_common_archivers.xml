@@ -1,0 +1,26 @@
+<rules>
+    <DataRequest functionCategory="Security" mode="Streaming" tactic="Collection" technique="T1074.001" techniqueName="Data Staged: Local Data Staging">
+        <Name>Linux: Creation of an Archive with Common Archivers / SCW</Name>
+        <Description>Detects attempt to collect and stage data in a central location or directory in preparation of exfiltration</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,hostName,procName,targetOsObjName,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Linux Creation of an Archive with $procName on $hostName</IncidentTitle>
+        <Remediation/>
+        <DataSource>Linux Process Monitoring via FortiSIEM Agent</DataSource>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="300">
+            <SubPattern id="5696063802" name="Filter">
+                <SingleEvtConstr>(eventType="LINUX_PROCESS_EXEC" AND procName IN ("gzip","hdiutil","tar","zip")) OR (eventType REGEXP "FSM_LINUX_FILE_.*" AND targetOsObjName REGEXP ".*\.gz|.*\.gzip|.*\.tar|.*\.zip")</SingleEvtConstr>
+                <GroupEvtConstr>COUNT(*)&gt;=1</GroupEvtConstr>
+                <GroupByAttr>hostName,procName,command,targetOsObjName</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <Tag>Suspicious Collection Activity</Tag>
+        <IncidentDef eventType="Linux_Creation_of_an_Archive_with_Common_Archivers_SCW" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="5">
+            <ArgList>hostName = Filter.hostName,procName = Filter.procName,command = Filter.command,targetOsObjName = Filter.targetOsObjName</ArgList>
+        </IncidentDef>
+        <DynWatchLists/>
+    </DataRequest>
+</rules>
+

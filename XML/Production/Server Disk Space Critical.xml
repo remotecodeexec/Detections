@@ -1,0 +1,32 @@
+<rules>
+    <DataRequest functionCategory="Performance" mode="Streaming" tactic="Impact" technique="T1499.001" techniqueName="Endpoint Denial of Service: OS Exhaustion Flood">
+        <Name>Server Disk Space Critical / SCW</Name>
+        <Description>Detects that server disk space usage has reached a critical level (greater than 95% and free disk less than 100 MB) based on 2 successive readings in a 10 minute interval</Description>
+        <TriggerEventDisplay>
+            <AttrList>phRecvTime,eventType,reptDevIpAddr,hostIpAddr,hostName,diskName,diskUtil,totalDiskMB,usedDiskMB,freeDiskMB,rawEventMsg</AttrList>
+        </TriggerEventDisplay>
+        <IncidentTitle>Server Disk Space $diskName Critical on $hostName</IncidentTitle>
+        <Remediation>Identify the largest files consuming most disk space and delete them. Or, enlarge the disk. If it is an OS disk, then the system may stop working if this problem is not taken care of.</Remediation>
+        <DataSource>Windows Performance Monitoring via OMI or FortiSIEM Agent, Linux via SNMP</DataSource>
+        <DetectionTechnology>Correlation</DetectionTechnology>
+        <PatternClause window="600">
+            <SubPattern id="4897758904" name="ServDiskCrit">
+                <SingleEvtConstr>eventType="PH_DEV_MON_SYS_DISK_UTIL" AND hostIpAddr IN (Device@backups%2dprod.sibscyberwatch.com,Device@cluster,Device@forticollector,Device@fsm%2dworker02.mcic.prod,Device@fsm%2dworker.mcic.prod,Device@HOST%2d10.200.20.1,Device@haproxy,Device@rtir,Device@soc%2ddb) AND diskName NOT IN ("/boot")</SingleEvtConstr>
+                <GroupEvtConstr>AVG(diskUtil)&gt;DeviceToCMDBAttr(hostIpAddr,diskName,DiskSpaceUtilThreshCrit) AND AVG(freeDiskMB)&lt;DeviceToCMDBAttr(hostIpAddr,diskName,FreeDiskMBThreshCrit) AND COUNT(*)&gt;=2</GroupEvtConstr>
+                <GroupByAttr>diskName,hostName,hostIpAddr</GroupByAttr>
+            </SubPattern>
+        </PatternClause>
+        <IncidentDef eventType="Server_Disk_Space_Critical_SIBSCyberwatch" eventTypeGroup="PH_SYS_EVENT_PH_RULE_PERF" fireFreq="21600" severity="9">
+            <ArgList>hostIpAddr = ServDiskCrit.hostIpAddr,hostName = ServDiskCrit.hostName,diskName = ServDiskCrit.diskName,diskUtil = ServDiskCrit.AVG(diskUtil),freeDiskMB = ServDiskCrit.AVG(freeDiskMB)</ArgList>
+        </IncidentDef>
+        <DynWatchLists>
+            <DynWatchListDef attr="hostName">
+                <WatchList>PH_DYNLIST_RESOURCE_ISSUE</WatchList>
+            </DynWatchListDef>
+        </DynWatchLists>
+        <ClearCondition method="Auto" type="timebased">
+            <QuietPeriod>1200</QuietPeriod>
+        </ClearCondition>
+    </DataRequest>
+</rules>
+
