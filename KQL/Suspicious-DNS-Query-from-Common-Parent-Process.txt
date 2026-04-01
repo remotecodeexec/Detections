@@ -1,13 +1,3 @@
-// title: Suspicious DNS Query from Common Parent Process
-// description: This rule detects suspicious DNS queries made by common Windows command-line interpreters and scripting engines. It specifically looks for `nslookup.exe` or `dig.exe` being spawned by `cmd.exe`, `powershell.exe`, `pwsh.exe`, `explorer.exe`, `wscript.exe`, `cscript.exe`, or `mshta.exe`. The detection is further refined by looking for specific DNS query types (TXT, MX, SRV, AAAA), service records (`._tcp.`, `._udp.`), or `.onion` domains in the command line. Additionally, it requires corroboration through the presence of an IP address or `-server=` in the command line, or specific PowerShell/command-line obfuscation/execution techniques, or suspicious top-level domains (TLDs) like `.xyz`, `.top`, `.tk`, `.ru`, `.cn`, `.cc`, `.ws`, `.pw`, `.onion`, `.direct`, `.surf`. The rule explicitly excludes queries to `localhost` or common legitimate DNS records like `_dmarc.`, `_dkim.`, `_spf.`, `_acme-challenge.`, `_domainkey.`, `_msdcs.` to reduce false positives.
-// author: Jason Nelson
-// tags:
-//   - attack.command_and_control
-//   - attack.t1071.004
-//   - attack.discovery
-//   - attack.t1059.001
-//   - attack.t1059.003
-// level: medium
 DeviceProcessEvents
 | where (FolderPath endswith "nslookup.exe" or FolderPath endswith "dig.exe")
 | where (InitiatingProcessFolderPath endswith "cmd.exe" or InitiatingProcessFolderPath endswith "powershell.exe" or InitiatingProcessFolderPath endswith "pwsh.exe" or InitiatingProcessFolderPath endswith "explorer.exe" or InitiatingProcessFolderPath endswith "wscript.exe" or InitiatingProcessFolderPath endswith "cscript.exe" or InitiatingProcessFolderPath endswith "mshta.exe")
