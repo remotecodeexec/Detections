@@ -13,6 +13,7 @@ Link for it: https://detections.ai/groups/1283a40d-166b-4f49-872a-62a0a73ad3ae
 
 <img width="1695" height="869" alt="image" src="https://github.com/user-attachments/assets/ae770002-a217-4c61-a1f0-43299d8db4c3" />
 
+At some point we will also add threat hunting reports to this community as well! And even post in a social media of some sort *wink* *wink*
 
 ## If i have a sugestion for a rule change/mistake caught, how can i contact you?
 You can anytime submit a request on this repo, as well as shooting me an e-mail @ remotecodeexecution@remotekingdom.pt. (yes i know the e-mail is kinda corny, but idc)
