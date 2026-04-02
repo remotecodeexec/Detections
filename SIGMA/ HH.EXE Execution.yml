@@ -14,7 +14,7 @@ references:
     https://eqllib.readthedocs.io/en/latest/analytics/b25aa548-7937-11e9-8f5c-d46d6d62a49e.html
   - >-
     https://www.zscaler.com/blogs/security-research/unintentional-leak-glimpse-attack-vectors-apt37
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-03-24T00:00:00.000Z
 tags:
   - attack.defense-evasion

@@ -6,7 +6,7 @@ description: |
     These actions can be indicative of malicious activity such as macro-based malware or drive-by downloads.
 references:
     - https://www.elastic.co/docs/reference/security/prebuilt-rules/rules/windows/initial_access_suspicious_ms_office_child_process
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-03-26
 tags:
     - attack.execution

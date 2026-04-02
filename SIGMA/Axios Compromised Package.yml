@@ -5,7 +5,7 @@ description: |
   Detects the installation or execution of compromised npm packages related to
   the Axios supply chain attack, with execution or reference to the dropped
   macOS RAT payload.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
   - https://www.stepsecurity.io/blog/axios-compromised-on-npm-malicious-versions-drop-remote-access-trojan#indicators-of-compromise
 date: 2026-03-31
