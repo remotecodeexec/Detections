@@ -1,4 +1,4 @@
-title: Potential PowerShell Command Line Obfuscation / SCW
+title: Potential PowerShell Command Line Obfuscation
 status: stable
 description: Detects the PowerShell command lines with special characters
 references:
