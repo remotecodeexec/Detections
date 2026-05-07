@@ -21,6 +21,7 @@ logsource:
 detection:
   selection_img:
     - Image|endswith: \curl.exe
+    # for other XDR's like s1, you may switch to "SourceFilename"
     - OriginalFileName: curl.exe
   selection_cmd:
     CommandLine|contains|all:
