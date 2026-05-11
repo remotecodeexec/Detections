@@ -1,0 +1,115 @@
+title: Dirty Frag Linux TTP detection
+name: elf_created_user_dir
+description: |
+    This detection identifies the normal Dirty Frag TTPs in Linux environments, which are commonly used by attackers to escalate privileges on a Linux Box.
+references:
+    - https://thehackernews.com/2026/05/linux-kernel-dirty-frag-lpe-exploit.html
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-05-11
+tags:
+    - attack.t1059.004
+logsource:
+    category: file_event
+    product: linux
+detection:
+    selection:
+        # These are the dirs that commonly used for staging the exploit, but you can add more if needed
+        TargetFilename|startswith:
+            - '/home/'
+            - '/root/'
+            - '/tmp/'
+            - '/var/tmp/'
+            - '/dev/shm/'
+    condition: selection
+falsepositives:
+    - Legitimate user downloading or compiling binaries in their home or temporary directory.
+level: low
+
+---
+
+title: Execution of Binary in User Directory
+name: execute_user_bin
+description: Detects the execution of a binary located in a user or temporary directory. This is the second stage of a potential privilege escalation attack sequence.
+references:
+    - https://attack.mitre.org/techniques/T1548/003/
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-05-11
+tags:
+    - attack.privilege-escalation
+    - attack.t1548.003
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    selection:
+        # These are the dirs that commonly used for staging the exploit, but you can add more if needed, inline with the previous rule
+        Image|startswith:
+            - '/home/'
+            - '/root/'
+            - '/tmp/'
+            - '/var/tmp/'
+            - '/dev/shm/'
+    condition: selection
+falsepositives:
+    - Legitimate execution of user-owned scripts or binaries.
+level: low
+
+---
+
+title: SU Execution By User Binary
+name: su_execution_user_bin
+description: Detects a binary located in a user or temporary directory initiating a 'su' process. This is the third stage of a potential privilege escalation attack.
+references:
+    - https://attack.mitre.org/techniques/T1548/003/
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-05-11
+tags:
+    - attack.privilege-escalation
+    - attack.t1548.003
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    # This is the part for the su execution
+    selection:
+        # same deal with the dirs 
+        Image|endswith: '/su'
+        ParentImage|startswith:
+            - '/home/'
+            - '/root/'
+            - '/tmp/'
+            - '/var/tmp/'
+            - '/dev/shm/'
+    condition: selection
+falsepositives:
+    - Legitimate scripts located in user directories that require elevated privileges.
+level: medium
+
+---
+
+title: ELF Binary Created In User Directory And Initiating SU
+description: A multi-stage correlation rule that detects an ELF binary being created in a user directory, subsequently executed, and then initiating a 'su' process. This behavior is highly suspicious and may indicate a fake 'su' prompt or a local privilege escalation attempt.
+references:
+    - https://attack.mitre.org/techniques/T1548/003/
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-05-11
+tags:
+    - attack.privilege-escalation
+    - attack.t1548.003
+# Putting all the previous rules together in a correlation rule  
+correlation: 
+  type: temporal
+  rules:
+    - elf_created_user_dir
+    - execute_user_bin
+    - su_execution_user_bin
+  timespan: 10m 
+rules:
+    - elf_created_user_dir
+    - execute_user_bin
+    - su_execution_user_bin
+timespan: 10m
+falsepositives:
+
+    - Administrators compiling and executing scripts that use 'su' from their home directories.
+level: high
