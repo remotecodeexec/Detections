@@ -1,6 +1,6 @@
-title: Dirty Frag Linux TTP detection
-id: 81cefdcd-c6ab-4001-965b-8298b0572112
-name: elf_created_user_dir
+title: ELF Binary Created
+id: 81cefdcd-c6ab-4001-965b-8298b0572112 
+name: elf_created_user_dir 
 description: |
     This detection identifies the normal Dirty Frag TTPs in Linux environments, which are commonly used by attackers to escalate privileges on a Linux Box.
 references:

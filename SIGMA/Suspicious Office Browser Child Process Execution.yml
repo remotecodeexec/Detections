@@ -1,5 +1,5 @@
 title: Suspicious Office/Browser Child Process Execution
-id: f6ddefa9-ed8a-432b-8d42-a83a3abd471f
+id: 76d571e6-b83e-4f9a-a29f-0b61bc973cb0
 status: test
 description: |
     Detects when a process spawned by Microsoft Office or a web browser executes a child process.
@@ -10,17 +10,12 @@ author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-03-26
 tags:
     - attack.execution
-    - attack.T1059.001
-    - attack.T1059.003
-
+    - attack.t1059.001
+    - attack.t1059.003
 logsource:
     category: process_creation
     product: windows
-    service: sysmon
-
 detection:
-    selection_id:
-      EventID: 1
     selection_parents:
       ParentImage|endswith:
         - 'winword.exe'
@@ -88,10 +83,8 @@ detection:
             - 'dfshim.dll'
             - 'shopenverbapplication'     
     
-    condition: selection_id and selection_parents and selection_childs and (selection_paths or selection_terms) and not 1 of filter_*
-
+    condition: selection_parents and selection_childs and (selection_paths or selection_terms) and not 1 of filter_*
 falsepositives:
     - Legitimate processes spawned by Microsoft Office or web browsers for normal operations (e.g., updates, plugins, etc.)
     - Printing services that are used from a browser or office application
-
 level: high

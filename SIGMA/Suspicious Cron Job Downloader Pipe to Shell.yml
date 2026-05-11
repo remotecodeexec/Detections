@@ -1,0 +1,43 @@
+title: Suspicious Cron Job Downloader Pipe to Shell
+id: ed59d2ec-b557-493b-b0bd-20794762c844
+status: stable
+description: Detects the execution of cron jobs that utilize file transfer
+  utilities (curl, wget) piped directly into a shell (sh, bash). This is a
+  common "living off the land" technique used by attackers to fetch and execute
+  remote malicious payloads for initial staging and persistence.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://danielroberson.com/post/linux-cron-persistence/
+date: 2026-04-23
+tags:
+  - attack.persistence
+  - attack.t1053.003
+  - attack.execution
+  - attack.t1059.004
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection_event_id:
+    EventID: 'Generic_Unix_Cron_Command'
+
+  selection_downloader:
+    CommandLine|contains:
+      - 'curl '
+      - 'wget '
+
+  selection_pipe_to_shell:
+    CommandLine|contains:
+      - '|sh'
+      - '| sh'
+      - '|bash'
+      - '| bash'
+      - '|/bin/sh'
+      - '| /bin/sh'
+      - '|/bin/bash'
+      - '| /bin/bash'
+      
+  condition: selection_event_id and selection_downloader and selection_pipe_to_shell
+falsepositives:
+  - Legitimate administrative scripts updating tools (rare but possible).
+level: high

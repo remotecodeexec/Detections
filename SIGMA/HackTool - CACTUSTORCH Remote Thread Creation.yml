@@ -1,4 +1,4 @@
-title: HackTool - CACTUSTORCH Remote Thread Creation / SCW
+title: HackTool - CACTUSTORCH Remote Thread Creation
 id: 2e4e488a-6164-4811-9ea1-f960c7359c40
 status: test
 description: Detects remote thread creation from CACTUSTORCH as described in references.
@@ -6,7 +6,8 @@ references:
     - https://twitter.com/SBousseaden/status/1090588499517079552 # Deleted
     - https://github.com/mdsecactivebreach/CACTUSTORCH
 author: Luís Marques, SIBS Cyberwatch @remotecodeexec
-date: 2026-01-15
+date: 2019-02-01
+modified: 2023-05-05
 tags:
     - attack.privilege-escalation
     - attack.defense-evasion

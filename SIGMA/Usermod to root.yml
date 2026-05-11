@@ -1,0 +1,35 @@
+title: Usermod to root
+id: 3ad49b7d-97de-4498-8b84-4fdeb47892d6
+status: stable
+description: |
+  Detects the use of the usermod to modify the users permissions.
+  Which can be an indication of privilege escalation attempts on Linux systems
+references:
+  - https://attack.mitre.org/techniques/T1548/001/
+  - https://s905060.gitbooks.io/site-reliability-engineer-handbook/content/how_to_change_user_gid_and_uid_in_ubuntu.html
+author: Luís Marques, SIBS Cyberwatch @remotecodeexc
+date: 2026-04-19
+tags:
+  - attack.privilege-escalation
+  - attack.t1548.001
+logsource:
+  category: process_creation
+  product: linux
+detection:
+    selection_usermod_root:
+       CommandLine|contains|all:
+         - 'usermod'
+         - '-u 0'
+    selection_usermod_group_debian:
+       CommandLine|contains:
+         - 'usermod'
+         - '-g sudo'
+    selection_usermod_group_redhat:
+       CommandLine|contains:
+         - 'usermod'
+         - '-g wheel'
+    condition: any of selection_usermod_root, selection_usermod_group_debian, selection_usermod_group_redhat
+falsepositives:
+  - Legitmate elevations to root using usermod command
+  - Automated scripts 
+level: medium

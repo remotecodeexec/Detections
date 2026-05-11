@@ -1,0 +1,30 @@
+title: Suspicious Python AF_ALG Cryptography via python
+id: 23911965-30dd-4f49-b0b2-bbf7884445cb 
+status: stable
+description: "Detects Python command lines referencing the specific authencesn cryptography string used to exploit the Copy Fail vulnerability (CVE-2026-31431)."
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-05-05
+references:
+  - https://xint.io/blog/copy-fail-linux-distributions
+  - https://detections.ai/inspirations/019dde5a-ffbe-7093-a458-a5df33e465ae
+tags:
+  - attack.t1059.006
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection_eventid:
+    - EventID: "LINUX_PROCESS_EXEC"
+  selection_python:
+    - Image|endswith: 
+        - 'python'
+        - 'pythonw'
+    - ParentCommandLine|contains: 
+        - 'python.exe'
+        - 'pythonw.exe'
+  selection_encription:
+    - CommandLine|contains: 'authencesn(hmac(sha256),cbc(aes))'
+  condition: all of selection_eventid and selection_python and selection_encription
+falsepositives:
+  - Internal application that make use of this encryption and python at the same time
+level: medium

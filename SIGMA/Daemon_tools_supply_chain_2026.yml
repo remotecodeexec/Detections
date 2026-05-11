@@ -1,0 +1,58 @@
+title: DAEMON Tools Supply Chain C2 Network Traffic
+id: a8fb4725-ac2b-439f-a6ce-70a5a6d822bf
+status: experimental
+description: Detects DNS requests or network connections to the typosquatted
+  domain and hardcoded IP associated with the DAEMON Tools supply chain attack,
+  as well as additional network relations tied to the installer.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://securelist.com/tr/daemon-tools-backdoor/119654/
+  - https://www.virustotal.com/gui/file/e22024a58de56b3655d6be7e3b21703325a57e0dd920bd9611588f5e33bb5132/relations
+date: 2026-05-06
+tags:
+  - attack.command-and-control
+  - attack.t1071.001
+  - attack.t1568.002
+logsource:
+  category: network_connection
+  product: windows
+detection:
+  # Detects connections to the specific typosquatted C2 domain
+  selection_domain:
+    DestinationHostname: 'env-check.daemontools.cc'
+
+  # Detects connections to the hardcoded C2 IP address
+  selection_ip:
+    DestinationIp: '38.180.107.76'
+
+  # Contextual domains from VT relations. These represent common legitimate infrastructure (CDNs, Microsoft telemetry).
+  # Tuning Suggestion: A placeholder 'Image' filter is applied to scope detection to the installer and mitigate massive false positives.
+  selection_vt_domains:
+    Image|endswith: '\DTWpfInstaller.exe'
+    DestinationHostname:
+      - 'a1672.dscr.akamai.net'
+      - 'assets.msn.com'
+      - 'eip-terr-na.cdp1.digicert.com.akahost.net'
+      - 'nexusrules.officeapps.live.com'
+
+  # Contextual IPs from VT relations. These IPs belong to CDNs and cloud infrastructure.
+  # Tuning Suggestion: A placeholder 'Image' filter is applied to scope detection strictly to the installer process.
+  selection_vt_ips:
+    Image|endswith: '\DTWpfInstaller.exe'
+    DestinationIp:
+      - '162.159.36.2'
+      - '23.11.33.159'
+      - '23.195.81.107'
+      - '23.195.81.59'
+      - '23.195.81.72'
+      - '23.195.81.73'
+      - '52.111.229.43'
+
+  condition: selection_domain or selection_ip or selection_vt_domains or selection_vt_ips
+falsepositives:
+  - Unlikely for the dedicated C2 infrastructure (env-check.daemontools.cc and
+    38.180.107.76)
+  - FPs are highly likely for the VirusTotal relations domains and IPs if the
+    'Image' filter is removed or tuned too broadly, as they correspond to
+    legitimate CDNs and Microsoft services.
+level: critical
