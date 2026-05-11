@@ -1,5 +1,5 @@
 title: Dirty Frag Linux TTP detection
-name: elf_created_user_dir
+name: elf_created_user_dir 
 description: |
     This detection identifies the normal Dirty Frag TTPs in Linux environments, which are commonly used by attackers to escalate privileges on a Linux Box.
 references:
