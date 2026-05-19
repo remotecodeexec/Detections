@@ -1,0 +1,28 @@
+title: Desktop Hypervisor VM Enumeration
+id: ce4c1306-6a1f-4772-912b-69f096b17c55
+status: stable
+description: Detects the execution of known desktop hypervisor management CLI tools such as VBoxManage or vmrun to enumerate local virtual machines. Attackers may use these commands during the discovery phase to identify running virtual environments for evasion or subsequent actions.
+author: Luís Marques, SIBS Cyberwatch @remotecodexec
+references:
+  - https://attack.mitre.org/techniques/T1673/
+date: 2026-05-19
+tags:
+  - attack.discovery
+  - attack.t1673
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_tools:
+    Image|endswith:
+      - '\VBoxManage.exe'
+      - '\vmrun.exe'
+
+  selection_args:
+    CommandLine|contains: 'list'
+
+  condition: selection_tools and selection_args
+falsepositives:
+  - Legitimate use by system administrators or developers managing local virtual machines.
+  - Automated CI/CD or testing pipelines that list and spin up virtual environments.
+level: medium

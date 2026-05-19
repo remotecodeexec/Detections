@@ -1,8 +1,8 @@
 title: Suspicious Shell Execution via Obsidian
 id: aea52096-6d8c-4a9c-9057-5c42ec3f1548
-status: stable
+status: stable 
 description: Detects the execution of shell interpreters (such as cmd, powershell, bash, osascript) as child processes of the Obsidian note-taking application. This behavior was observed in the REF6598 campaign where threat actors abused the "Shell Commands" community plugin to deliver the PHANTOMPULSE RAT. It also detects specific command-line indicators associated with the campaign.
-author: Luis Marques, SIBS Cyberwatch @remotecodeexc
+author: Luis Marques, SIBS Cyberwatch @remotecodexec
 references:
   - https://www.elastic.co/security-labs/phantom-in-the-vault
 date: 2026-04-14

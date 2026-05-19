@@ -1,0 +1,30 @@
+title: SHub Reaper Fake GoogleUpdate Persistence
+id: 725e5f2f-4d26-42d7-b650-370fe734a622
+status: experimental
+description: Detects the creation of an unexpected LaunchAgent property list named 'com.google.keystone.agent.plist' paired with the creation or execution of a binary at '~/Library/Application Support/Google/GoogleUpdate.app/Contents/MacOS/GoogleUpdate'. This exact path and plist combination is used by the SHub Reaper malware to establish persistent backdoor access while masquerading as a Google software update.
+author: Luís Marques, SIBS Cyberwatch @remotecodexec
+references:
+  - https://www.sentinelone.com/blog/shub-reaper-macos-stealer-spoofs-apple-google-and-microsoft-in-a-single-attack-chain/
+date: 2026-05-19
+tags:
+  - attack.persistence
+  - attack.t1543.001
+  - attack.defense-evasion
+  - attack.t1036.005
+logsource:
+  product: macos
+  category: file_event
+detection:
+  # Detects the creation of the LaunchAgent property list.
+  # Note: This plist name is also used by legitimate Google installations. If false positives occur, consider filtering out known legitimate parent processes (e.g., legitimate Google updaters) or tuning to require the presence of both artifacts.
+  selection_plist:
+    TargetFilename|endswith: '/Library/LaunchAgents/com.google.keystone.agent.plist'
+
+  # Detects the creation of the masqueraded payload.
+  # The use of 'GoogleUpdate.app' instead of the native macOS 'GoogleSoftwareUpdate.app' is a key indicator of this malware variant.
+  selection_binary:
+    TargetFilename|endswith: '/Library/Application Support/Google/GoogleUpdate.app/Contents/MacOS/GoogleUpdate'
+  condition: selection_plist or selection_binary
+falsepositives:
+  - Legitimate Google Software Update installations. FPs can be minimized by checking code signatures, parent processes, or requiring both file paths to be created in close proximity.
+level: medium

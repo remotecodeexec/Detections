@@ -21,11 +21,13 @@ detection:
             - '/tmp/'
             - '/var/tmp/'
             - '/dev/shm/'
-    condition: selection
+  condition: selection
 falsepositives:
     - Legitimate user downloading or compiling binaries in their home or temporary directory.
 level: low
+
 ---
+
 title: Execution of Binary in User Directory
 id: 0117d1f5-a8c9-49c3-8730-941a2d1cd289
 name: execute_user_bin
@@ -49,11 +51,13 @@ detection:
             - '/tmp/'
             - '/var/tmp/'
             - '/dev/shm/'
-    condition: selection
+  condition: selection
 falsepositives:
     - Legitimate execution of user-owned scripts or binaries.
 level: low
+
 ---
+
 title: SU Execution By User Binary
 id: b516b1e7-dedc-4e28-8273-36a6db70347f
 name: su_execution_user_bin
@@ -79,11 +83,13 @@ detection:
             - '/tmp/'
             - '/var/tmp/'
             - '/dev/shm/'
-    condition: selection
+  condition: selection
 falsepositives:
     - Legitimate scripts located in user directories that require elevated privileges.
 level: medium
+
 ---
+
 title: ELF Binary Created In User Directory And Initiating SU
 id: 86ba1997-4ac6-4fbe-83f1-2d672b3c2d79
 description: A multi-stage correlation rule that detects an ELF binary being created in a user directory, subsequently executed, and then initiating a 'su' process. This behavior is highly suspicious and may indicate a fake 'su' prompt or a local privilege escalation attempt.

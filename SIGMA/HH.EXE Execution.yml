@@ -24,6 +24,8 @@ logsource:
   product: windows
   service: security
 detection:
+  selection_eventid:
+    EventID: '1'
   selection_img:
     - OriginalFileName: HH.exe
     - Image|endswith: \hh.exe
