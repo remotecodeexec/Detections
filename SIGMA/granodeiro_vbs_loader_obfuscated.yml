@@ -1,0 +1,112 @@
+title: Grandoreiro VBS Loader — Obfuscated wscript/cscript From User-Writable Path
+id: fca4e24f-17ad-4da3-b309-4640ff1a7617
+status: experimental
+description: Detects the Grandoreiro Campaign 2 obfuscated VBS loader executed via wscript.exe / cscript.exe from a user-writable directory. The rule has been expanded to also detect additional Grandoreiro behaviors, including the spawning of Delphi payloads from AppData, WMI queries for AntiVirusProduct, browser kiosk mode execution, and potential DLL side-loading of abused legitimate executables (FastStone, MinGW, FreeMat, AbiWord).
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://cybersecuritynews.com/hackers-use-grandoreiro-malware-to-target-portuguese-banks/
+  - https://attack.mitre.org/techniques/T1059/005/
+  - https://www.watchguard.com/wgrd-security-hub/secplicity-blog/grandoreiro-malware-campaign-targets-europe-and-latin-america
+date: 2026-05-28
+tags:
+  - attack.execution
+  - attack.defense-evasion
+  - attack.discovery
+  - attack.t1059.005
+  - attack.t1027
+  - attack.t1218
+  - attack.t1574.002
+  - attack.t1047
+  - attack.t1518.001
+  - threat.grandoreiro
+logsource:
+  product: windows
+  category: process_creation
+detection:
+    # --- Component 1: Grandoreiro VBS Loader ---
+    # Detects wscript/cscript running VBS from user-writable paths
+  selection_proc:
+    Image|endswith:
+      - '\wscript.exe'
+      - '\cscript.exe'
+  selection_path:
+    CommandLine|contains:
+      - '\Users\'
+      - '\AppData\'
+      - '\Temp\'
+      - '\ProgramData\'
+      - '\Downloads\'
+      - '\Desktop\'
+  selection_script:
+    CommandLine|contains:
+      - '.vbs'
+      - '.vbe'
+      - '.wsf'
+
+  filter_vbs_legit:
+    CommandLine|contains:
+      - 'Programs\Startup\podman-desktop.vbs'
+      - 'ProgramData\HP\HP BTO Software\'
+  
+  filter_legit_imaging:
+    ParentImage|contains:
+      - '\scansonic\thxdview\thxdview.exe'
+
+    # --- Component 2: Payload Execution ---
+    # Detects VBS loaders spawning executables (like the Delphi payload) in AppData/Temp
+  selection_payload_parent:
+    ParentImage|endswith:
+      - '\wscript.exe'
+      - '\cscript.exe'
+  selection_payload_image:
+    Image|contains:
+      - '\AppData\Local\'
+      - '\AppData\Roaming\'
+      - '\Temp\'
+    Image|endswith: '.exe'
+
+    # --- Component 3: DLL Side-Loading Candidates ---
+    # Detects the execution of tools abused for DLL side-loading running from anomalous paths
+  selection_sideload_image:
+    Image|endswith:
+      - '\FSViewer.exe'             # FastStone Image Viewer
+      - '\mingw32-make.exe'         # MinGW Compiler Suite
+      - '\gcc.exe'                  # MinGW Compiler Suite
+      - '\freemat.exe'              # FreeMat
+      - '\abiword.exe'              # AbiWord
+  selection_sideload_path:
+    Image|contains:
+      - '\AppData\Local\'
+      - '\AppData\Roaming\'
+      - '\Temp\'
+      - '\Downloads\'
+      - '\Users\Public\'
+
+    # --- Component 4: WMI AV Discovery ---
+    # Detects WMI queries targeting AntiVirusProduct
+  selection_wmi_av:
+    CommandLine|contains|all:
+      - 'SELECT'
+      - 'FROM'
+      - 'AntiVirusProduct'
+
+    # --- Component 5: Fake Banking Overlay ---
+    # Detects browser execution in kiosk mode, commonly used to lock screen and display fake overlays
+  selection_kiosk:
+    CommandLine|contains|all:
+      - '--new-window'
+      - '--kiosk'
+
+  condition: >
+    (selection_proc and selection_path and selection_script and not filter_vbs_legit and not filter_legit_imaging) or
+    (selection_payload_parent and selection_payload_image) or
+    (selection_sideload_image and selection_sideload_path) or
+    selection_wmi_av or
+    selection_kiosk
+falsepositives:
+  - Legitimate IT-deployed VBScript automation or logon scripts.
+  - Software installers that drop and execute temporary VBS helpers or executables under %APPDATA% or %TEMP%.
+  - Legitimate usage of FastStone, MinGW, FreeMat, or AbiWord from user-writable directories (e.g., portable versions).
+  - Valid administrative scripts checking for installed AV products.
+  - Authorized applications or displays utilizing browser kiosk mode.
+level: medium

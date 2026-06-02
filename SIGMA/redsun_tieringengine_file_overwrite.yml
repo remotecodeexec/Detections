@@ -1,0 +1,41 @@
+title: RedSun CVE-2026-33825 TieringEngineService.exe Binary Overwrite
+id: a7e2f3b1-8c4d-4f9a-b6e2-1d5c3f8a9b4e
+status: stable
+description: |
+  Detects file write, creation, or modification of C:\Windows\System32\TieringEngineService.exe
+  by any process other than legitimate Windows servicing components. The RedSun exploit
+  (CVE-2026-33825) overwrites this binary via a Defender cloud-file-rollback redirection
+  abuse, enabling SYSTEM-level code execution when the Tier Management Engine COM object
+  is subsequently invoked. Legitimate modification of this file is almost exclusively
+  performed by TrustedInstaller during Windows servicing operations.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://github.com/Nightmare-Eclipse/RedSun/blob/main/RedSun.cpp
+  - https://www.picussecurity.com/resource/blog/bluehammer-redsun-windows-defender-cve-2026-33825-zero-day-vulnerability-explained
+  - https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-33825
+date: 2026-05-25
+tags:
+  - attack.privilege-escalation
+  - attack.t1574
+  - attack.t1036.005
+logsource:
+  category: file_event
+  product: windows
+detection:
+  selection_target:
+    TargetFilename|endswith: '\System32\TieringEngineService.exe'
+  filter_legit_servicing:
+    Image|endswith:
+      - '\TrustedInstaller.exe'
+      - '\TiWorker.exe'
+      - '\msiexec.exe'
+      - '\wuauclt.exe'
+      - '\cmimageworker.exe'
+      - '\taskhostw.exe'
+      - '\containerworker.exe'
+      - '\setuphost.exe'
+  condition: selection_target and not 1 of filter_legit_servicing
+falsepositives:
+  - Out-of-band Microsoft hotfix deployments that bypass TrustedInstaller (rare)
+  - Third-party backup/restore utilities operating on system files
+level: medium

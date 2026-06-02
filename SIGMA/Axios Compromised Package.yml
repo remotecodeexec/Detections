@@ -13,6 +13,7 @@ tags:
   - attack.execution
   - attack.t1195.002
   - attack.t1059.004
+  - cve.2026-1232
 logsource:
   product: windows
   category: process_creation
