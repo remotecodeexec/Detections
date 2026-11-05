@@ -1,0 +1,29 @@
+title: Rust/Tokio Malicious DLL Loaded via msiexec Sizes Worker Thread Pool
+id: 8f2e6a4c-3b71-4d5a-9e2c-6a1f0c9d7b53
+status: stable
+description: Detects a DLL loaded into msiexec.exe that exports a function named RUN and exhibits Tokio async-runtime initialization behavior, reading the TOKIO_WORKER_THREADS environment variable and/or calling GetSystemInfo followed by multiple CreateThread calls to size its worker thread pool. Matches msaRAT behavior where the malicious Rust/Tokio DLL is loaded via an MSI custom action running under msiexec.exe.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references: 
+  - 'https://blog.talosintelligence.com/chaos-msarat-living-off-the-browser-to-build-covert-c2-channel/'
+date: 2026-07-24
+tags:
+  - attack.t1082
+  - attack.t1106
+logsource:
+  category: image_load
+  product: windows
+detection:
+  selection_host:
+    Image|endswith: '\msiexec.exe'
+  selection_export:
+    ExportedFunctionName: 'RUN'
+  selection_env:
+    EnvironmentVariable: 'TOKIO_WORKER_THREADS'
+  selection_api:
+    ApiName:
+      - 'GetSystemInfo'
+      - 'CreateThread'
+  condition: selection_host and (selection_export or (selection_env and selection_api))
+falsepositives:
+  - Legitimate Rust/Tokio-based applications or installers that happen to be loaded via msiexec.exe (rare)
+level: high

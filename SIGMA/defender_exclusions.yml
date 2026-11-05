@@ -1,0 +1,31 @@
+title: Suspicious Windows Defender Exclusion Added via PowerShell
+status: stable 
+id: ec06e7e1-5a34-4e15-a815-c723e8c8675b
+description: Detects the use of the Add-MpPreference PowerShell cmdlet to add the entire C:\ drive or powershell.exe to Microsoft Defender exclusions. This technique is actively used by threat actors to bypass antivirus scanning and ensure the execution of subsequent payloads.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://www.fortinet.com/blog/threat-research/threat-actors-weaponize-ai-hype-to-deliver-asyncrat
+date: 2026-06-15
+tags:
+  - attack.defense-evasion
+  - attack.t1562.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_cmd:
+    CommandLine|contains|all:
+      - 'Add-MpPreference'
+      - 'Exclusion'
+  selection_targets:
+    CommandLine|contains:
+      - 'C:'
+      - 'powershell.exe'
+  selection_filter_legit:
+    CommandLine|contains:
+      - 'C:\Program Files\JetBrains\Rider\r2r'
+  condition: selection_cmd and selection_targets and not selection_filter_legit
+falsepositives:
+  - Rare administrative scripts configuring legacy systems or development environments.
+  - To reduce false alerts in environments with heavy automation, tune by filtering out known administrative service accounts or specific parent processes executing the script.
+level: medium

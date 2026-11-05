@@ -1,0 +1,21 @@
+title: Suspicious ISO Mount Activity
+status: stable 
+id: 71baf2ab-7236-49ee-9914-19ea3fb46e69
+description: Detects the execution of PowerShell cmdlets used to mount ISO/VHD images. This behavior is a known prerequisite for the RoguePlanet Windows Defender vulnerability exploit, which relies on a race condition triggered during the mounting of an ISO image by a standard user.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://github.com/MSNightmare/RoguePlanet
+date: 2026-06-12
+tags:
+  - attack.defense_evasion
+  - attack.t1553.005
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    CommandLine|contains: 'Mount-DiskImage'
+  condition: selection
+falsepositives:
+  - Legitimate administrative activity or users manually mounting virtual drives for software installations.
+level: medium

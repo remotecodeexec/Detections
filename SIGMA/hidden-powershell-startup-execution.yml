@@ -1,0 +1,48 @@
+title: Hidden PowerShell Startup Execution
+id: 8bc605b2-f19c-4697-82c7-c273fe8b39a9
+status: experimental
+description: >-
+  Detects the hidden PowerShell command used by the observed Guildma Startup
+  shortcut to launch a renamed AutoIt interpreter and a compiled script disguised
+  as a LOG file from a user-writable public cache directory.
+references:
+  - https://isc.sans.edu/diary/rss/33300
+  - https://attack.mitre.org/techniques/T1547/001/
+  - https://attack.mitre.org/techniques/T1059/001/
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: 2026-09-09
+tags:
+  - attack.persistence
+  - attack.execution
+  - attack.t1547.001
+  - attack.t1059.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_powershell:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+  selection_hidden:
+    CommandLine|contains:
+      - '-windowstyle hidden'
+      - '-windowstyle:hidden'
+      - '-w hidden'
+  selection_public_cache:
+    CommandLine|contains: '\Users\Public\Libraries\.cache\'
+  selection_executable_and_script:
+    CommandLine|contains|all:
+      - '.exe'
+      - '.log'
+  selection_campaign_marker:
+    CommandLine|contains:
+      - '\PLAX\'
+      - 'Beatz.LEDPRO.'
+  condition: >-
+    selection_powershell and selection_hidden and selection_public_cache and
+    selection_executable_and_script and selection_campaign_marker
+falsepositives:
+  - Legitimate automation that deliberately uses hidden PowerShell to launch an
+    executable and LOG-named script from the same public cache directory
+level: high

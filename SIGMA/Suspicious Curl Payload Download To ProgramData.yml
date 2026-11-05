@@ -1,6 +1,6 @@
 title: Suspicious Curl Payload Download To ProgramData
-id: a6952799-038b-4f4d-9199-ca3627c0a995
-status: stable
+id: a6952799-038b-4f4d-9199-ca3627c0a995 
+status: stable 
 description: |
   Detects the execution of curl.exe to download an executable payload directly into the C:\ProgramData\ directory. 
   This behavior was observed in MuddyWater campaigns utilizing the Chaos ransomware false flag to retrieve their initial dropper (ms_upd.exe).
@@ -22,7 +22,7 @@ detection:
     CommandLine|contains|all:
       - 'http'
       - '-o'
-      - 'C:\ProgramData\'
+      - 'ProgramData'
       - '.exe'
   condition: selection_img and selection_cmd  
 falsepositives:

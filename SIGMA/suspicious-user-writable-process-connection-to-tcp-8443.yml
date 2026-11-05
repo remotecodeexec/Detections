@@ -1,0 +1,48 @@
+title: Suspicious User-Writable Process Connection To TCP 8443
+id: 45023992-a56c-43f3-accc-bfe37e6091d1
+name: brazetsu_suspicious_8443
+status: experimental
+description: Detects processes executing from user-writable locations connecting to TCP 8443, a behavior reported for the BraZetsu WebSocket backdoor.
+references:
+    - https://www.group-ib.com/blog/brazetsu-ai-enhanced-iab-marketplace/
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: 2026-09-14
+tags:
+    - attack.command-and-control
+    - attack.t1071.001
+logsource:
+    category: network_connection
+    product: windows
+detection:
+    selection_port:
+        DestinationPort: 8443
+
+    selection_origin_path:
+        Image|contains:
+            - '\AppData\Local\Temp\'
+            - '\AppData\Roaming\'
+            - '\Users\Public\'
+            - '\Downloads\'
+
+    selection_origin_name:
+        Image|endswith:
+            - '\wifi_driver.exe'
+            - '\msedge04.exe'
+            - '\msdege04.exe'
+
+    filter_localhost:
+        DestinationIp|contains:
+            - '127.0.0.1'
+            - '::1'
+
+    condition: selection_port and 1 of selection_origin_* and not 1 of filter_*
+fields:
+    - ComputerName
+    - User
+    - Image
+    - DestinationHostname
+    - DestinationIp
+    - DestinationPort
+falsepositives:
+    - Development tools or legitimate applications installed in a user profile that use TCP 8443.
+level: medium

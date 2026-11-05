@@ -1,4 +1,5 @@
 title: GhostLock Tool Artifacts Detected
+status: stable 
 id: 19971a04-61d2-4481-8e77-34bc6fd654bb
 description: Detects the creation or presence of specific artifact files (.ghostlock_authorized and ghostlock_cache.json) associated with the GhostLock proof-of-concept availability weapon. These files are used by the tool to manually authorize locking operations in specific directories and to cache discovered file lists for rapid session re-establishment.
 references:
@@ -8,7 +9,6 @@ references:
 author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-05-12
 tags:
-  - attack.ta0002
   - attack.t1059.006
 logsource:
   product: windows

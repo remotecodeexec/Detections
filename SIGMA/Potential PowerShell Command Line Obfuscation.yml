@@ -3,7 +3,7 @@ status: stable
 description: Detects the PowerShell command lines with special characters
 references:
     - https://speakerdeck.com/heirhabarov/hunting-for-powershell-abuse?slide=64
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-02-24
 modified: 2026-02-24
 tags:

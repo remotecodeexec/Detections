@@ -1,6 +1,6 @@
 title: DAEMON Tools Supply Chain C2 Network Traffic
 id: a8fb4725-ac2b-439f-a6ce-70a5a6d822bf
-status: experimental
+status: stable
 description: Detects DNS requests or network connections to the typosquatted
   domain and hardcoded IP associated with the DAEMON Tools supply chain attack,
   as well as additional network relations tied to the installer.

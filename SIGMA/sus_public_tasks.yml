@@ -1,0 +1,32 @@
+title: Suspicious Scheduled Task Creation from Public Documents
+id: 756aed12-0d72-44f3-a5f6-df88bbe62e08 
+status: stable 
+description: >-
+  Detects the creation of a scheduled task utilizing an XML configuration file
+  located in the C:\Users\Public\Documents directory. The CryptoBandits worm
+  component creates these tasks to maintain persistence for both itself and the
+  stealer payload.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://www.microsoft.com/en-us/security/blog/2026/06/17/crypto-clipper-uses-tor-worm-like-propagation-for-persistence-control/
+date: 2026-06-22T00:00:00.000Z
+tags:
+  - attack.t1053.005
+logsource:
+  category: process_creation
+  product: windows
+  service: security
+detection:
+  selection_img:
+    - Image|endswith: \schtasks.exe
+  selection_cli:
+    CommandLine|contains|all:
+      - '/create'
+      - '/xml'
+      - 'C:\Users\Public\Documents'
+      - '.xml'
+  condition: selection_img and selection_cli
+falsepositives:
+  - Rare legitimate applications that store task XMLs in Public Documents,
+    though highly unusual.
+level: high

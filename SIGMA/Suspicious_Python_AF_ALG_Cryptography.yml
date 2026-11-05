@@ -1,6 +1,6 @@
 title: Suspicious Python AF_ALG Cryptography via python
 id: 23911965-30dd-4f49-b0b2-bbf7884445cb 
-status: stable
+status: stable 
 description: "Detects Python command lines referencing the specific authencesn cryptography string used to exploit the Copy Fail vulnerability (CVE-2026-31431)."
 author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-05-05

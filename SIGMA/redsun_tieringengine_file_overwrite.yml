@@ -1,6 +1,6 @@
 title: RedSun CVE-2026-33825 TieringEngineService.exe Binary Overwrite
+status: stable 
 id: a7e2f3b1-8c4d-4f9a-b6e2-1d5c3f8a9b4e
-status: stable
 description: |
   Detects file write, creation, or modification of C:\Windows\System32\TieringEngineService.exe
   by any process other than legitimate Windows servicing components. The RedSun exploit
@@ -34,6 +34,11 @@ detection:
       - '\taskhostw.exe'
       - '\containerworker.exe'
       - '\setuphost.exe'
+      - '\dismhost.exe'
+      - '\setuphost.exe'
+      - '\windowsupdatebox.exe'
+      - '\SetupPlatform.exe'
+      - '\setupplatform.exe'
   condition: selection_target and not 1 of filter_legit_servicing
 falsepositives:
   - Out-of-band Microsoft hotfix deployments that bypass TrustedInstaller (rare)

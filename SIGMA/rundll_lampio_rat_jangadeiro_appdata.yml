@@ -1,0 +1,28 @@
+title: Rundll32 Execution of Lampion RAT via jangadeiro Export from AppData
+status: stable
+id: 3e08bdb5-7263-49d5-a770-24401f7f949e
+description: Detects when rundll32 runs with the "jangadeiro" argument from the AppData directory.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-07-23'
+references:
+  - https://www.acronis.com/en/tru/posts/lampions-portugal-focused-phishing-campaign-delivers-multistage-malware/
+tags:
+  - attack.t1218.011
+  - attack.t1055
+  - attack.t1027.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_image:
+    Image|endswith: '\rundll32.exe'
+  selection_export:
+    CommandLine|contains: 'jangadeiro'
+  selection_path:
+    CommandLine|re: '.*\\AppData\\Roaming\\\d{14}\\\d{14}\.dll.*'
+  condition: selection_image and (selection_export or selection_path)
+level: high
+fields:
+  - Image
+  - CommandLine
+  - ParentImage

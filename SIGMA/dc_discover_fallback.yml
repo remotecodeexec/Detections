@@ -1,0 +1,53 @@
+title: Domain Controller Discovery via Chained Fallback Methods
+status: experimental
+id: 456c1a31-96f7-4842-a190-a95a45c6a6e0
+description: |
+    Detects attempts to discover domain controllers using various fallback methods, including nltest, PowerShell commands, and environment variable queries. These techniques are often employed by attackers to map the network and identify critical infrastructure.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+tags:
+    - attack.t1018
+    - attack.t1482
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_nltest:
+        Image|endswith: '\nltest.exe'
+        CommandLine|contains: '/dclist:'
+    selection_getaddc:
+        CommandLine|contains:
+            - 'Get-ADDomainController'
+            - '-Discover'
+    selection_logonserver:
+        CommandLine|contains: '$env:LOGONSERVER'
+    selection_dns:
+        CommandLine|contains: '[System.Net.Dns]::GetHostEntry'
+    filter_cmd:
+        CommandLine|contains:
+            - '"DST.exe" --dst-discovery'
+            - 'ollama.exe gpu-discover'
+            - 'application-of-bioisosteres-in-the-design-and-discovery-of-fda-approved-drugs-and-advanced-clinical-candidates.pdf'
+            - 'skills\project-discovery'
+            - 'skills/project-discovery'
+            
+    filter_apps:
+        Image|contains:
+            - 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+            - 'burpbrowser\146.0.7680.178\chrome.exe'
+            - 'AppData\Local\Programs\Git\bin\bash.exe'
+            - 'AppData\Local\Programs\Git\usr\bin\bash.exe'
+            - 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+            - 'C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe'
+    Filter_windows_apps:
+        Image|contains:
+            - 'Microsoft.Windows.Photos_2026.11050.1001.0_x64__8wekyb3d8bbwe\Photos.exe'
+
+    condition: 1 of selection_* and not filter_cmd and not filter_apps and not Filter_windows_apps
+fields:
+    - Image
+    - CommandLine
+    - ParentImage
+falsepositives:
+    - Legitimate administrative scripts performing domain controller discovery
+    - IT automation tools querying LOGONSERVER environment variable
+level: medium

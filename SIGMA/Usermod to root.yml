@@ -7,7 +7,7 @@ description: |
 references:
   - https://attack.mitre.org/techniques/T1548/001/
   - https://s905060.gitbooks.io/site-reliability-engineer-handbook/content/how_to_change_user_gid_and_uid_in_ubuntu.html
-author: Luís Marques, SIBS Cyberwatch @remotecodeexc
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-04-19
 tags:
   - attack.privilege-escalation

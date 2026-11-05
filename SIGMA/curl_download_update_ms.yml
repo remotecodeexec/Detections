@@ -1,0 +1,33 @@
+title: Malicious curl Download of update_ms.msi Disguised as Windows Update
+id: 5e75cf88-d174-4bce-ace1-15ff3d39e40e
+status: stable
+description: This rule detects the Download of the stager for the msaRAT directly from the IP marked as IOC
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-07-24'
+modified: '2026-07-24'
+references:
+  - 'https://blog.talosintelligence.com/chaos-msarat-living-off-the-browser-to-build-covert-c2-channel/'
+tags:
+  - attack.t1105
+  - attack.t1036
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_image:
+    Image|endswith: '\curl.exe'
+  selection_filename:
+    CommandLine|contains: 'update_ms.msi'
+  selection_ioc:
+    CommandLine|contains: '172.86.126.18'
+  selection_output:
+    CommandLine|contains: 'C:\programdata\update_ms.msi'
+  condition: selection_image and selection_filename and (selection_ioc or selection_output)
+falsepositives:
+  - Legitimate administrative use of curl.exe with similarly named files (unlikely given specific IP and filename)
+level: high
+fields:
+  - Image
+  - CommandLine
+  - ParentImage
+  - User

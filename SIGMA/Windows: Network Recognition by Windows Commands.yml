@@ -3,7 +3,7 @@ status: stable
 description: |
     This rule detects the use of Native Windows binaries to enumerate the network information on the host.
     These are the first steps of an attack, where the adversary is trying to understand the network environment and the host's role within it.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 date: 2026-03-16
 tags:
     - attack.discovery

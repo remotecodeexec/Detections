@@ -1,0 +1,33 @@
+title: "PowerShell Fetches and Evaluates a Remote Script Via InvokeScript"
+id: a0888bb5-7530-4e4e-972d-726394e7bb81
+status: experimental
+description: Detects the PowerShell download-and-execute method used by the Exvicy ClickFix example without relying on its domain.
+references:
+    - https://www.sekoia.com/blog/exvicy-a-copycat-of-the-errtraffic-malware-distribution-framework
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: 2026-09-24
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_image:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    selection_eval:
+        CommandLine|contains: 'InvokeCommand.InvokeScript'
+    selection_fetch:
+        CommandLine|contains:
+            - 'irm '
+            - 'Invoke-RestMethod'
+    condition: selection_image and selection_eval and selection_fetch
+fields:
+    - CommandLine
+    - ParentImage
+    - User
+falsepositives:
+    - Legitimate administration scripts that retrieve and evaluate remote code.
+level: medium

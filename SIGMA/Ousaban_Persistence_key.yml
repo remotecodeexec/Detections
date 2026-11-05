@@ -1,0 +1,22 @@
+title: Ousaban Registry Persistence via Financeiro Run Key
+id: 9d655486-fc3f-4b5f-810c-9b2189be6cfc
+description: |
+  Detects the creation of a registry run key named 'Financeiro' under the CurrentVersion\Run path, which is associated with the Ousaban malware. This detection identifies instances where the 'Financeiro' run key is created in the Windows registry, which may indicate a compromise or malicious activity related to Ousaban malware persistence.
+author: Luís marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-07-06
+tags:
+  - attack.t1547.001
+logsource:
+  category: registry_event
+  product: windows
+detection:
+  selection:
+    TargetObject|endswith: '\CurrentVersion\Run\Financeiro'
+  condition: selection
+falsepositives:
+  - Unlikely - 'Financeiro' is a non-standard value name not used by legitimate software
+level: high
+fields:
+  - TargetObject
+  - Details
+  - Image

@@ -1,6 +1,6 @@
 title: Potential Defense Evasion Via Rename Of Highly Relevant Binaries
-id: 6ae6fc52-fb2d-4299-a755-dae6dbb48ce0
-status: stable 
+id: 6ae6fc52-fb2d-4299-a755-dae6dbb48ce0 
+status: stable  
 description: Detects the execution of a renamed binary often used by attackers or malware leveraging new Sysmon OriginalFileName datapoint.
 references:
     - https://mgreen27.github.io/posts/2019/05/12/BinaryRename.html

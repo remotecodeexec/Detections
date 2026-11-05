@@ -1,0 +1,35 @@
+title: Scheduled Task Creation via schtasks.exe Spawned by wscript or cscript
+status: stable
+id: 1c142786-017e-457d-b9c2-d84e7898bf14
+description: The rule attempts to find scheduled tasks being created via the "schtasks.exe" binary, when it's parent is "wscript" or "cscript".
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-07-23'
+references:
+  - https://www.acronis.com/en/tru/posts/lampions-portugal-focused-phishing-campaign-delivers-multistage-malware/
+tags:
+  - attack.persistence
+  - attack.t1053
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|endswith:
+      - '\wscript.exe'
+      - '\cscript.exe'
+  selection_child:
+    Image|endswith: '\schtasks.exe'
+    CommandLine|contains: '/create'
+  selection_filter:
+    CommandLine|contains:
+      - '/create /SC Daily /tn Backup_Lss /tr c:\dr\Backup_LSS.bat'
+      - '/create /SC Diariamente /tn Backup_Lss /tr c:\dr\Backup_LSS.bat'
+  condition: selection_parent and selection_child and not selection_filter
+falsepositives:
+  - Legitimate administrative VBScript-driven scheduled task automation
+level: medium
+fields:
+  - ParentImage
+  - Image
+  - CommandLine
+  - User

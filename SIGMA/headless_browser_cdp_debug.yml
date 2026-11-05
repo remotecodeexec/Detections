@@ -1,0 +1,40 @@
+title: Headless Browser Spawned by msiexec with CDP Remote Debugging Enabled
+id: 5f37363f-5d34-4ed0-ae4e-e9fd7ecdf99f
+status: stable
+description: Detects msiexec.exe launching Chrome or Edge in headless mode with a remote debugging port and a custom user-data directory, matching the browser-hijacking stage used by msaRAT.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-07-24
+modified: 2026-07-24
+references:
+  - 'https://blog.talosintelligence.com/chaos-msarat-living-off-the-browser-to-build-covert-c2-channel/'
+tags:
+  - attack.t1102.002
+  - attack.t1071.001
+  - attack.t1102.003
+  - attack.t1218.007
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|endswith: '\msiexec.exe'
+  selection_image:
+    Image|endswith:
+      - '\chrome.exe'
+      - '\msedge.exe'
+  selection_headless:
+    CommandLine|contains:
+      - '--headless'
+      - '--headless=new'
+  selection_cdp:
+    CommandLine|contains: '--remote-debugging-port'
+  selection_userdata:
+    CommandLine|contains: '--user-data-dir'
+  condition: selection_parent and selection_image and selection_headless and selection_cdp and selection_userdata
+falsepositives:
+  - MSI packages that legitimately launch a headless browser with CDP enabled for installation or testing
+level: high
+fields:
+  - ParentImage
+  - Image
+  - CommandLine

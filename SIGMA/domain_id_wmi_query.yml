@@ -1,0 +1,36 @@
+title: Domain Identification via WMI Win32_ComputerSystem Query
+status: stable
+id: a8190367-91a5-47a9-b6d4-104a6252c4e6
+description: |
+    Detects attempts to identify the domain membership of a system using WMI queries to the Win32_ComputerSystem class. This technique is often employed by attackers to gather information about the network environment and potential targets.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://www.huntress.com/blog/ai-coded-malware-vibe-coding-active-directory
+date: '2026-07-14'
+modified: '2026-07-14'
+tags:
+  - attack.t1018
+  - attack.t1482
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_img:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+  selection_cli:
+    CommandLine|contains:
+      - 'Get-WmiObject'
+      - 'Win32_ComputerSystem'
+  selection_domain:
+    CommandLine|contains: '.Domain'
+  condition: selection_img and selection_cli and selection_domain
+falsepositives:
+  - Legitimate administrative scripts querying domain membership
+  - Software inventory or asset management tools
+fields:
+  - CommandLine
+  - ParentImage
+  - User
+level: low

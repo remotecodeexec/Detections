@@ -1,0 +1,33 @@
+title: Lampion RAT DLL Process Access into Browser for Banking Overlay Credential Theft
+status: stable
+id: b62eb4c2-737e-4b6b-a1d7-2b03f03c4f51
+description: The rule attempts to locate the use of the DLL from the lampion RAT to intercept browser credential operations, this is one of credentials theft techniques by Lampion.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-07-23
+references:
+  - https://www.acronis.com/en/tru/posts/lampions-portugal-focused-phishing-campaign-delivers-multistage-malware/
+tags:
+  - attack.execution
+  - attack.t1218.011
+logsource:
+  category: process_access
+  product: windows
+detection:
+  selection_source:
+    SourceImage|endswith: '\rundll32.exe'
+    SourceCommandLine|contains: 'jangadeiro'
+  selection_target_browser:
+    TargetImage|endswith:
+      - '\chrome.exe'
+      - '\msedge.exe'
+      - '\firefox.exe'
+      - '\iexplore.exe'
+  condition: selection_source and selection_target_browser
+falsepositives:
+  - Legitimate rundll32 usage is uncommon; verify SourceCommandLine export name and DLL path under %APPDATA% before triage
+level: high
+fields:
+  - SourceImage
+  - SourceCommandLine
+  - TargetImage
+  - GrantedAccess

@@ -1,0 +1,30 @@
+title: Registry Query for Chrome/Edge Install Path as Browser-Discovery Guardrail
+id: 0178a272-94cd-494c-8dfb-da6e4e57a274
+status: stable
+description: Detects msiexec.exe-associated registry activity involving Chrome or Edge installation paths, matching msaRAT browser discovery before it launches a headless CDP session.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-07-24
+modified: 2026-07-24
+references:
+  - 'https://blog.talosintelligence.com/chaos-msarat-living-off-the-browser-to-build-covert-c2-channel/'
+tags:
+  - attack.t1012
+logsource:
+  category: registry_event
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\msiexec.exe'
+    TargetObject|contains:
+      - '\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe'
+      - '\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe'
+      - '\Google\Chrome\Application'
+      - '\Microsoft\Edge\Application'
+  condition: selection
+falsepositives:
+  - Browser installation, repair, or enterprise deployment packages running through Windows Installer
+level: medium
+fields:
+  - Image
+  - TargetObject
+  - Details

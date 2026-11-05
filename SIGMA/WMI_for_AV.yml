@@ -1,0 +1,28 @@
+title: WMI Query for Installed AntiVirus Products via Scripting Interpreters 
+status: stable
+id: 67135ddd-d479-47f3-a1f4-3b65009e33ea 
+description: |
+  Detects WMI queries for installed AntiVirus products executed via scripting interpreters such as wscript.exe, cscript.exe, powershell.exe, or wmic.exe. This behavior may indicate an attempt to gather information about security software on the system, which can be a precursor to evasion or targeted attacks.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-07-02'
+modified: '2026-07-02'
+tags:
+  - attack.t1518.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_image:
+    Image|endswith:
+      - '\wscript.exe'
+      - '\cscript.exe'
+      - '\powershell.exe'
+      - '\wmic.exe'
+  selection_query:
+    CommandLine|contains:
+      - 'SELECT displayName FROM AntiVirusProduct'
+      - 'root\SecurityCenter2'
+  condition: selection_image and selection_query
+falsepositives:
+  - Legitimate security tooling or asset inventory scripts querying AntiVirusProduct via WMI
+level: medium

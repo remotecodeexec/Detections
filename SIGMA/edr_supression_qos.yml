@@ -1,0 +1,29 @@
+title: EDR Supression Process Execution with QOS
+id: 7cd69f13-27f8-467b-8b05-0e9cfb0f700a
+status: stable
+description: |
+    Detects whenever a QoS with throttleRate is created by a Windows Service. This behaviour is normally associated with EDR Supression.
+references:
+    - https://www.zerosalarium.com/2026/06/edrchoker-choking-telemetry-stream-block-edr.html
+author: Luis Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-06-08
+tags:
+    - attack.defense_evasion
+    - attack.t1686.003
+
+logsource:
+    product: windows
+    category: registry_event
+
+detection:
+    selection:
+        EventID|contains: AO-WUA-Registry-Added
+        TargetObject|contains|all: 
+          - '\\QoS\\' 
+          - 'ThrottleRate'
+    condition: selection
+
+falsepositives:
+    - Legitimate uses of QoS policies
+
+level: medium

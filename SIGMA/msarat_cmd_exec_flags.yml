@@ -1,0 +1,31 @@
+title: msaRAT Command Execution via cmd.exe with Specific Flags
+id: ed1aeb40-3603-4c7e-909b-41c5b1dcbb48
+status: stable
+description: This rule attempts to detect the command flags from the msaRAT.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-07-24
+modified: 2026-07-24
+references:
+  - 'https://blog.talosintelligence.com/chaos-msarat-living-off-the-browser-to-build-covert-c2-channel/'
+tags:
+  - attack.t1059.003
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_image:
+    Image|endswith: '\cmd.exe'
+  selection_flags:
+    CommandLine|contains|all:
+      - '/e:ON'
+      - '/v:OFF'
+      - '/d'
+      - '/c'
+  condition: selection_image and selection_flags
+level: high
+falsepositives:
+  - Other tools with the same flags
+fields:
+  - CommandLine
+  - ParentImage
+  - Image

@@ -1,0 +1,31 @@
+title: Creation or Execution of trepamobq.cmd Banker Artifact
+status: stable 
+id: 9e238bef-1ec0-431d-aa3a-bdd657148fa6
+description: |
+  Detects the creation or execution of the trepamobq.cmd file, which is associated with the Trepamo banking malware. This detection identifies instances where the trepamobq.cmd script is created in the filesystem or executed, which may indicate a compromise or malicious activity related to banking malware.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-07-02'
+modified: '2026-07-02'
+tags:
+  - attack.t1053.005
+  - attack.t1027
+  - attack.persistence
+  - attack.defense_evasion
+logsource:
+  product: windows
+detection:
+  selection_file_creation:
+    EventID: 11
+    TargetFilename|endswith: '\trepamobq.cmd'
+  selection_process_exec:
+    EventID: 1
+    CommandLine|contains: 'trepamobq.cmd'
+  condition: selection_file_creation or selection_process_exec
+falsepositives:
+  - Unknown
+level: high
+fields:
+  - Image
+  - CommandLine
+  - ParentCommandLine
+  - TargetFilename

@@ -1,6 +1,6 @@
-title: Grandoreiro VBS Loader — Obfuscated wscript/cscript From User-Writable Path
+title: Grandoreiro VBS Loader — Obfuscated wscript/cscript From User-Writable Path 
+status: stable 
 id: fca4e24f-17ad-4da3-b309-4640ff1a7617
-status: experimental
 description: Detects the Grandoreiro Campaign 2 obfuscated VBS loader executed via wscript.exe / cscript.exe from a user-writable directory. The rule has been expanded to also detect additional Grandoreiro behaviors, including the spawning of Delphi payloads from AppData, WMI queries for AntiVirusProduct, browser kiosk mode execution, and potential DLL side-loading of abused legitimate executables (FastStone, MinGW, FreeMat, AbiWord).
 author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
@@ -18,7 +18,6 @@ tags:
   - attack.t1574.002
   - attack.t1047
   - attack.t1518.001
-  - threat.grandoreiro
 logsource:
   product: windows
   category: process_creation
@@ -31,12 +30,12 @@ detection:
       - '\cscript.exe'
   selection_path:
     CommandLine|contains:
-      - '\Users\'
-      - '\AppData\'
-      - '\Temp\'
-      - '\ProgramData\'
-      - '\Downloads\'
-      - '\Desktop\'
+      - '\Users'
+      - '\AppData'
+      - '\Temp'
+      - '\ProgramData'
+      - '\Downloads'
+      - '\Desktop'
   selection_script:
     CommandLine|contains:
       - '.vbs'
@@ -46,7 +45,18 @@ detection:
   filter_vbs_legit:
     CommandLine|contains:
       - 'Programs\Startup\podman-desktop.vbs'
-      - 'ProgramData\HP\HP BTO Software\'
+      - 'ProgramData\HP\HP BTO Software'
+      - 'Users\ACALVO\OneDrive - Bial Group\Alba PC\9 Personal\Contractos.vbs'
+      - 'ACALVO\OneDrive - Bial Group\Alba PC\9 Personal\contratos.vbs'
+      - 'Users\ACALVO\Downloads\contratos.vbs'
+      - 'cfmonteiro\OneDrive - Bial Group\Desktop\iqbi.vbs'
+      - 'msampaio\OneDrive - Bial Group\vbs.vbs'
+      - 'Users\dmagano\OneDrive - Bial Group\New Text Document.vbs'
+      - 'Users\ACALVO\OneDrive - Bial Group\Pictures\Desktop\New folder\DSM.vbs'
+      - 'bioMerieux\programs\VILINK\Agent\Scripts\export\Export_UVNC_Configuration.vbs'
+      - '\scripts\DelTree.vbs'
+      - '\dr\EnviarMail.vbs'
+
   
   filter_legit_imaging:
     ParentImage|contains:
@@ -60,9 +70,9 @@ detection:
       - '\cscript.exe'
   selection_payload_image:
     Image|contains:
-      - '\AppData\Local\'
-      - '\AppData\Roaming\'
-      - '\Temp\'
+      - '\AppData\Local'
+      - '\AppData\Roaming'
+      - '\Temp'
     Image|endswith: '.exe'
 
     # --- Component 3: DLL Side-Loading Candidates ---
@@ -76,11 +86,11 @@ detection:
       - '\abiword.exe'              # AbiWord
   selection_sideload_path:
     Image|contains:
-      - '\AppData\Local\'
-      - '\AppData\Roaming\'
-      - '\Temp\'
-      - '\Downloads\'
-      - '\Users\Public\'
+      - '\AppData\Local'
+      - '\AppData\Roaming'
+      - '\Temp'
+      - '\Downloads'
+      - '\Users\Public'
 
     # --- Component 4: WMI AV Discovery ---
     # Detects WMI queries targeting AntiVirusProduct

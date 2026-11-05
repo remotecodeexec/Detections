@@ -21,7 +21,7 @@ detection:
             - '/tmp/'
             - '/var/tmp/'
             - '/dev/shm/'
-  condition: selection
+    condition: selection
 falsepositives:
     - Legitimate user downloading or compiling binaries in their home or temporary directory.
 level: low
@@ -51,7 +51,7 @@ detection:
             - '/tmp/'
             - '/var/tmp/'
             - '/dev/shm/'
-  condition: selection
+    condition: selection
 falsepositives:
     - Legitimate execution of user-owned scripts or binaries.
 level: low
@@ -83,7 +83,7 @@ detection:
             - '/tmp/'
             - '/var/tmp/'
             - '/dev/shm/'
-  condition: selection
+    condition: selection
 falsepositives:
     - Legitimate scripts located in user directories that require elevated privileges.
 level: medium

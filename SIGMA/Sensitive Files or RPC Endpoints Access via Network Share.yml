@@ -4,7 +4,7 @@ status: experimental
 description: |
       Detects access to sensitive files, credential data, or remote procedure call (RPC) endpoints related to credential dumping over a network share. 
       This could indicate lateral movement or remote credential harvesting techniques.
-author: Luís Marques, SIBS Cyberwatch @remotecodeexecution
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
   - https://www.slideshare.net/heirhabarov/hunting-for-credentials-dumping-in-windows-environment
 date: 2026-03-18

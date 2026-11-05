@@ -1,0 +1,26 @@
+title: "ClickFix PowerShell Download and Execution of oficioprotocolo.tng via IEX"
+id: b172d2c7-2f46-4835-978d-1a9a4d88522e
+description: |
+  The rule attempts to detect the use of powershell to exec "officoprotocolo", which was part of the PhatomEnigma campaign
+status: experimental
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-08-04'
+modified: '2026-08-04'
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_powershell:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+  selection_payload:
+    CommandLine|contains: 'oficioprotocolo.tng'
+  selection_iex:
+    CommandLine|contains:
+      - 'iex'
+      - 'Invoke-Expression'
+  condition: selection_powershell and selection_payload and selection_iex
+falsepositives:
+  - Unknown
+level: high

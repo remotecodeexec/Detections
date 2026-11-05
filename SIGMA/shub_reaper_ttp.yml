@@ -2,7 +2,7 @@ title: SHub Reaper Fake GoogleUpdate Persistence
 id: 725e5f2f-4d26-42d7-b650-370fe734a622
 status: experimental
 description: Detects the creation of an unexpected LaunchAgent property list named 'com.google.keystone.agent.plist' paired with the creation or execution of a binary at '~/Library/Application Support/Google/GoogleUpdate.app/Contents/MacOS/GoogleUpdate'. This exact path and plist combination is used by the SHub Reaper malware to establish persistent backdoor access while masquerading as a Google software update.
-author: Luís Marques, SIBS Cyberwatch @remotecodexec
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
 references:
   - https://www.sentinelone.com/blog/shub-reaper-macos-stealer-spoofs-apple-google-and-microsoft-in-a-single-attack-chain/
 date: 2026-05-19

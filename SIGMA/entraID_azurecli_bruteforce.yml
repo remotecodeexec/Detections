@@ -1,0 +1,41 @@
+title: Multiple Microsoft Entra ID Azure CLI BAV2ROPC Failed Authentication Attempt
+id: 7c3e1a2f-84b6-4d91-bc50-e38f9a1d6c47
+status: stable
+description: Detects failed authentication attempts using the BAV2ROPC user agent (Azure CLI / legacy OAuth2 ROPC token requests) in Microsoft 365 Unified Audit Logs. BAV2ROPC bypasses MFA by authenticating directly to the /token endpoint. Error codes 50053 (account lockout), 50126 (invalid credentials), and 50034 (user not found) are characteristic of password spraying activity. Observed in the LSHIY LLC password spray campaign (June 2026).
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://www.huntress.com/blog/lshiy-password-spray-attack
+date: 2026-07-01
+tags:
+  - attack.credential_access
+  - attack.t1110.003
+  - attack.t1078.004
+  - attack.t1550.001
+logsource:
+  product: m365
+  service: audit
+detection:
+  selection_operation:
+    Workload: AzureActiveDirectory
+    Operation: UserLoginFailed
+  selection_useragent:
+    ExtendedProperties|contains: 'BAV2ROPC'
+  selection_requesttype:
+    ExtendedProperties|contains: 'OAuth2:Token'
+  selection_errorcodes:
+    ErrorNumber:
+      - 50053
+      - 50126
+      - 50034
+  timeframe: 5m
+  condition: selection_operation and selection_useragent and selection_requesttype and selection_errorcodes | count() by UserId > 4
+falsepositives:
+  - Legitimate Azure CLI usage with misconfigured credentials
+  - Automated scripts using ROPC flow with incorrect credentials during development or testing
+level: high
+fields:
+  - UserId
+  - ClientIP
+  - ErrorNumber
+  - ExtendedProperties
+  - UserAgent

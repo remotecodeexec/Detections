@@ -1,0 +1,59 @@
+title: Msiexec Executes an MSI Package from ProgramData
+id: 43e594b9-b52d-440a-a235-fabcdf9121ff
+status: stable
+description: Detects Windows Installer executing an MSI package from ProgramData, matching
+  the msaRAT delivery chain in which update_ms.msi is downloaded to that directory
+  and then executed.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: 2026-07-24
+references:
+  - >-
+    https://blog.talosintelligence.com/chaos-msarat-living-off-the-browser-to-build-covert-c2-channel/
+tags:
+  - attack.t1218.007
+logsource:
+  category: process_creation
+  product: windows
+  service: security
+detection:
+  selection_image:
+    Image|endswith: '\msiexec.exe'
+  selection_msi:
+    CommandLine|contains: '.msi'
+  selection_path:
+    CommandLine|contains:
+      - '\ProgramData\'
+      - '%ProgramData%\'
+  filter_legit:
+    CommandLine|contains:
+      - 'C:\ProgramData\LogiOptionsPlus\depots'
+      - 'C:\ProgramData\Tailscale\Logs\tailscale-installer'
+      - 'C:\ProgramData\HP\Security Update Service\Temp\'
+      - 'PACKAGENAMEUID="FoxitPDFEditor'
+      - 'AppData\Roaming\Netskope\stagent\Logs\STAUpdate'
+      - 'C:\ProgramData\netskope\stagent\data'
+      - 'C:\ProgramData\Minitab\Minitab'
+      - 'C:\Program Files\SentinelOne\Sentinel Agent'
+      - 'C:\ProgramData\Veeam\Veeam Availability Console\Log\Agent\VAC.CommunicationAgent.x64.msi.log'
+      
+  filter_legit_image:
+    ParentImage|contains:
+      - 'foxitpdfreader20253.exe'
+      - 'FoxitPDFReader20262_L10N_Setup_x64.exe'
+      - '\program files\windows autopatch client broker\clientbrokerupgrader\agentupgrader.exe'
+
+  filter_legit_scripts:
+    ParentCommandLine|contains: 
+      - '-ExecutionPolicy Bypass C:\ProgramData\Microsoft\AutopatchSetupScheduled\SetupAutopatchClientV2Package.ps1'
+      - '"setup.exe"  /s /v"/qn REBOOT=ReallySuppress"'
+      - 'ProgramData\Intel\DSA\Downloads\gfx_win_101.8974.exe'
+  
+  condition: selection_image and selection_msi and selection_path and not (filter_legit or filter_legit_image or filter_legit_scripts)
+falsepositives:
+  - Enterprise software deployment systems that stage legitimate MSI packages in ProgramData
+level: medium
+fields:
+  - Image
+  - CommandLine
+  - ParentImage
+  - User

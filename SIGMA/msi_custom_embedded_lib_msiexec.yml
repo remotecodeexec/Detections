@@ -1,0 +1,30 @@
+title: MSI Custom Action Loads Embedded lib.dll via msiexec.exe
+id: ff04f260-88f0-4e12-b700-a6fa478cae94
+status: stable
+description: Detects lib.dll being loaded by msiexec.exe, an unusual image-load relationship that matches the embedded MSI custom action used by msaRAT.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-07-24'
+modified: '2026-07-24'
+related:
+  - id: 91b68fc6-4e3c-4ad8-bbb1-d66b29739125
+    type: similar
+references:
+  - 'https://blog.talosintelligence.com/chaos-msarat-living-off-the-browser-to-build-covert-c2-channel/'
+tags:
+  - attack.t1218.007
+logsource:
+  category: image_load
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\msiexec.exe'
+    ImageLoaded|endswith: '\lib.dll'
+  condition: selection
+falsepositives:
+  - Legitimate MSI packages that ship a custom action DLL named lib.dll (uncommon but possible)
+level: high
+fields:
+  - Image
+  - ImageLoaded
+  - Computer
+  - User

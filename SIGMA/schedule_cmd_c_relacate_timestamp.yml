@@ -1,0 +1,25 @@
+title: Scheduled Task cmd /c move Relocates Payload into Timestamp AppData Folder
+status: stable
+id: 3f6f1a2e-9d4b-4f7a-9a3c-8e2c5d7b1f90
+description: Detects cmd.exe invoked with '/c move' relocating a downloaded payload into a timestamp-named appdata folder, consistent with a Lampion scheduled-task move stage.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+date: '2026-07-23'
+references:
+  - https://www.acronis.com/en/tru/posts/lampions-portugal-focused-phishing-campaign-delivers-multistage-malware/
+tags:
+  - attack.t1053.005
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_cmd:
+    Image|endswith: '\cmd.exe'
+    CommandLine|contains: '/c move'
+  selection_path:
+    CommandLine|contains: '\AppData\Roaming\'
+  selection_ext:
+    CommandLine|endswith: '.dll'
+  condition: selection_cmd and selection_path and selection_ext
+falsepositives:
+  - Legitimate software update or installer routines that move DLLs into AppData\Roaming via scheduled tasks
+level: high

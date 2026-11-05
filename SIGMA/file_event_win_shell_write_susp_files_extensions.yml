@@ -75,10 +75,10 @@ detection:
         TargetFilename|endswith: '.ps1'
     filter_users:
         User|endswith:
-            - '\$'
-            - '\SYSTEM'
-            - '\LOCAL SERVICE'
-            - '\NETWORK SERVICE'
+            - '$'
+            - 'SYSTEM'
+            - 'LOCAL SERVICE'
+            - 'NETWORK SERVICE'
     condition: 1 of selection_* and not 1 of filter_main_* and not 1 of filter_users
 falsepositives:
     - Unknown

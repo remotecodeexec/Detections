@@ -1,0 +1,27 @@
+title: Microsoft Defender Writing Executables to System Folders
+status: stable 
+id: 9a7b3c2d-1e4f-4d5a-b8c9-d0e1f2a3b4c5
+description: Detects MsMpEng.exe writing executables or libraries into System32 or SysWOW64 directories, which can be indicative of junction-redirected remediation abuse.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://detections.ai/share/inspiration/FS1UVIME
+tags:
+  - attack.persistence
+  - attack.privilege_escalation
+  - attack.t1543.003
+logsource:
+  category: file_event
+  product: windows
+detection:
+  selection:
+    EventID: 11
+    Image|endswith: '\MsMpEng.exe'
+    TargetFilename|contains:
+      - '\Windows\System32'
+      - '\Windows\SysWOW64'
+    TargetFilename|endswith:
+      - '.exe'
+      - '.dll'
+      - '.sys'
+  condition: selection
+level: medium

@@ -81,8 +81,30 @@ detection:
         Image|contains: '\rundll32.exe'
         CommandLine|contains:
             - 'dfshim.dll'
-            - 'shopenverbapplication'     
+            - 'shopenverbapplication'
     
+    filter_p7_temp:
+        ParentImage|endswith: 
+            - '\msedge.exe'
+            - '\chrome.exe'
+        CommandLine|contains|all: 
+            - 'cryptext.dll,CryptExtOpenPKCS7'
+            - '.p7'
+    
+    filter_inetcpl:
+        ParentImage|endswith: 
+            - '\msedge.exe'
+            - '\chrome.exe'
+        CommandLine|contains|all: 
+            - 'Control_RunDLL'
+            - 'WINDOWS\system32\inetcpl.cpl'
+            - 'rundll32.exe'
+
+    filter_print_job:
+        CommandLine|contains|all:
+            - 'Windows\system32\spool\DRIVERS\x64\3\hpmsn103.dll'
+            - 'MonitorPrintJobStatus'
+            - 'HP LaserJet Professional CM1410 Series PCL 6'
     condition: selection_parents and selection_childs and (selection_paths or selection_terms) and not 1 of filter_*
 falsepositives:
     - Legitimate processes spawned by Microsoft Office or web browsers for normal operations (e.g., updates, plugins, etc.)

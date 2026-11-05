@@ -1,0 +1,40 @@
+title: AutoIt Interpreter Execution From an Unusual Location
+id: 20057225-47e5-44e5-8e29-782a66d1500a
+status: experimental
+description: >-
+  Detects an AutoIt interpreter executing outside the usual AutoIt installation
+  directories. Identification uses either the normal executable name or the
+  AutoIt code-signing publisher, allowing Cortex XDR to identify many renamed
+  copies without relying on the unsupported OriginalFileName Sigma field.
+references:
+  - https://isc.sans.edu/diary/rss/33300
+  - https://www.autoitscript.com/autoit3/docs/intro/installdir.htm
+  - https://www.autoitscript.com/site/autoit/downloads/
+  - https://www.elastic.co/guide/en/security/current/renamed-automation-script-interpreter.html
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: 2026-09-10
+tags:
+  - attack.execution
+  - attack.t1059.010
+  - attack.t1036.003
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_image_name:
+    Image|endswith:
+      - '\AutoIt3.exe'
+      - '\AutoIt3_x64.exe'
+  selection_publisher:
+    Company|contains: 'AutoIt Consulting'
+  filter_main_installed_location:
+    Image|contains:
+      - '\Program Files\AutoIt3\'
+      - '\Program Files (x86)\AutoIt3\'
+  condition: >-
+    (selection_image_name or selection_publisher) and not
+    filter_main_installed_location
+falsepositives:
+  - The official portable AutoIt package, which is designed to run without an installation
+  - Approved software, logon scripts, administration tools, or testing bundles that redistribute AutoIt
+level: medium

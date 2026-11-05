@@ -1,0 +1,47 @@
+title: Windows Startup Shortcut Lnk Creation
+id: 298b8ab3-f117-4b55-9a25-b5f4206aac41
+status: experimental
+description: >-
+  Detects creation or overwrite of the Windows shortcut name pattern observed in
+  the Guildma Startup-folder persistence mechanism when the creator is a script
+  interpreter, LOLBin, or process running from a user-writable location. The
+  Cortex XDR Sigma backend maps TargetFilename to action_file_name and cannot
+  represent the Startup directory path; use the companion native XQL rule for
+  path-based detection.
+references:
+  - https://isc.sans.edu/diary/rss/33300
+  - https://attack.mitre.org/techniques/T1547/001/
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: 2026-09-09
+tags:
+  - attack.persistence
+  - attack.t1547.001
+logsource:
+  category: file_event
+  product: windows
+detection:
+  selection_campaign_lnk:
+    TargetFilename|contains: 'wininittemp.log'
+    TargetFilename|endswith: '.lnk'
+  selection_suspicious_creator:
+    Image|endswith:
+      - '\cmd.exe'
+      - '\powershell.exe'
+      - '\pwsh.exe'
+      - '\wscript.exe'
+      - '\cscript.exe'
+      - '\mshta.exe'
+      - '\rundll32.exe'
+      - '\regsvr32.exe'
+  selection_user_writable_creator:
+    Image|contains:
+      - '\AppData\'
+      - '\Temp\'
+      - '\Users\Public\'
+  condition: >-
+    selection_campaign_lnk and
+    (selection_suspicious_creator or selection_user_writable_creator)
+falsepositives:
+  - A legitimate shortcut using the unusual wininittemp.log name pattern and
+    created by a script interpreter or user-writable executable
+level: high

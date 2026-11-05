@@ -1,0 +1,30 @@
+title: DNS zone record enumeration via Get-DnsServerResourceRecord
+status: stable
+id: 66bc6f37-3e7f-44c0-bcf9-4049582ef5da
+description: |
+    Detects attempts to enumerate DNS zone records using the Get-DnsServerResourceRecord cmdlet. This technique is often employed by attackers to gather information about DNS configurations and potential targets within a network.
+author: Luís Marques, SIBS Cyberwatch @remotecodeexec
+references:
+  - https://www.huntress.com/blog/ai-coded-malware-vibe-coding-active-directory
+date: '2026-07-14'
+modified: '2026-07-14'
+tags:
+  - attack.t1018
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_cmd:
+    CommandLine|contains: 'Get-DnsServerResourceRecord'
+  selection_rrtype:
+    CommandLine|contains: '-RRType'
+  selection_output:
+    CommandLine|contains: 'DNS_Subnets.txt'
+  condition: selection_cmd and selection_rrtype or selection_output
+falsepositives:
+  - Legitimate DNS administration or auditing scripts run by IT staff
+level: medium
+fields:
+  - CommandLine
+  - Image
+  - ParentImage

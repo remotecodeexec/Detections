@@ -1,0 +1,29 @@
+title: Exvicy ClickFix Reported PowerShell Script URL
+id: bccea56f-db5a-47d4-a746-42b83eecbfaf
+status: experimental
+description: Detects PowerShell launching the exact remote script URL shown in the Exvicy ClickFix report.
+references:
+    - https://www.sekoia.com/blog/exvicy-a-copycat-of-the-errtraffic-malware-distribution-framework
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: 2026-09-24
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_image:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    selection_command:
+        CommandLine|contains: 'recaptcha-check.com/8E9curHNH8UfAMLz'
+    condition: selection_image and selection_command
+fields:
+    - CommandLine
+    - ParentImage
+    - User
+falsepositives:
+    - Security research or controlled testing of the published URL.
+level: high
