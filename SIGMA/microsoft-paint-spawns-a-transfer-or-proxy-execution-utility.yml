@@ -1,0 +1,39 @@
+title: "Microsoft Paint Spawns a Transfer or Proxy Execution Utility"
+id: 5c415ac0-f3dd-46fb-bd04-7c15ea7d6acc
+status: experimental
+description: >-
+    Detects Microsoft Paint directly starting a utility that could transfer
+    or execute a follow-on payload. Launching a utility alone does not establish
+    a transfer or exploitation of CVE-2026-83844.
+references:
+    - https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-83844
+    - https://www.darkreading.com/application-security/microsoft-rce-bug-windows-paint-confusion
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: '2026-11-10'
+tags:
+    - attack.execution
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith: '\mspaint.exe'
+    selection_child:
+        Image|endswith:
+            - '\curl.exe'
+            - '\certutil.exe'
+            - '\bitsadmin.exe'
+            - '\rundll32.exe'
+            - '\regsvr32.exe'
+            - '\mshta.exe'
+    condition: selection_parent and selection_child
+fields:
+    - ParentImage
+    - ParentCommandLine
+    - Image
+    - CommandLine
+    - User
+falsepositives:
+    - Approved software or administrative automation that starts these utilities from Paint
+    - A process masquerading as mspaint.exe; verify the full path and signature
+level: medium

@@ -1,0 +1,33 @@
+title: "Microsoft Paint Spawns a Command or Script Interpreter"
+id: 8dfc431f-4007-41ab-a03d-7380005858b5
+status: experimental
+description: >-
+    Detects Microsoft Paint directly starting a command or script interpreter.
+    This is a possible post-exploitation signal, not evidence that CVE-2026-83844
+    was exploited.
+references:
+    - https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-83844
+    - https://www.darkreading.com/application-security/microsoft-rce-bug-windows-paint-confusion
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: '2026-11-10'
+tags:
+    - attack.execution
+    - attack.t1059
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith: '\mspaint.exe'
+    selection_child:
+        Image|endswith:
+            - '\cmd.exe'
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+    condition: selection_parent and selection_child
+falsepositives:
+    - Approved workflows or automation that launch an interpreter from Paint
+    - A process masquerading as mspaint.exe; verify the full path and signature
+level: medium

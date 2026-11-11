@@ -1,0 +1,38 @@
+title: "Microsoft Paint Spawns a Program From a Writable Directory"
+id: 4abb3772-792d-444a-adc0-d5f79a4fa7a6
+status: experimental
+description: >-
+    Detects Microsoft Paint directly starting a program located in a commonly
+    user-writable directory. This may reveal a follow-on payload even when it
+    does not use a named command interpreter or transfer utility.
+references:
+    - https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-83844
+    - https://www.darkreading.com/application-security/microsoft-rce-bug-windows-paint-confusion
+author: "Luís Marques, SIBS Cyberwatch @remotecodeexec"
+date: '2026-11-10'
+tags:
+    - attack.execution
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith: '\mspaint.exe'
+    selection_child:
+        Image|contains:
+            - '\AppData\Local\Temp\'
+            - '\AppData\Roaming\'
+            - '\Downloads\'
+            - '\ProgramData\'
+            - '\Windows\Temp\'
+    condition: selection_parent and selection_child
+fields:
+    - ParentImage
+    - ParentCommandLine
+    - Image
+    - CommandLine
+    - User
+falsepositives:
+    - Approved applications installed per user or launched from a download folder
+    - A process masquerading as mspaint.exe; verify the full path and signature
+level: medium
